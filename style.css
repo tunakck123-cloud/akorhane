@@ -449,14 +449,14 @@ footer strong {
 }
 
 .song-lyrics-display {
-  padding: 20px 18px;
+  padding: 16px 18px;
   margin-top: 12px;
   background: #181818;
   border: 1px solid var(--line);
   border-radius: 10px;
   color: #eee;
   font-size: 16px;
-  line-height: 2.2;
+  line-height: 1.8;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -524,7 +524,7 @@ footer strong {
   .song-lyrics-display {
     padding: 16px 12px;
     font-size: 14px;
-    line-height: 2.2;
+    line-height: 1.8;
   }
 
   .modal-box {
