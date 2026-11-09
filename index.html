@@ -2,301 +2,116 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AKORHANE | Gitar Akor Arşivi</title>
-<style>
-:root{--bg:#101010;--panel:#1b1b1b;--panel2:#252525;--text:#f5f2ed;--muted:#999;--gold:#f0a43a;--line:#333}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
-header{position:sticky;top:0;background:#101010ee;backdrop-filter:blur(12px);border-bottom:1px solid var(--line);z-index:5}
-.nav{max-width:1100px;margin:auto;padding:20px 24px;display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:25px;font-weight:900;letter-spacing:2px}.logo span{color:var(--gold)}
-nav{display:flex;gap:20px}nav a{color:#bbb;text-decoration:none;font-size:14px}
-nav a:hover{color:var(--gold)}
-main{max-width:1100px;margin:auto;padding:45px 24px}
-.hero{text-align:center;padding:35px 0 55px}
-.eyebrow{color:var(--gold);font-size:11px;letter-spacing:3px;font-weight:bold}
-h1{font-size:clamp(40px,7vw,65px);margin:18px 0 12px;letter-spacing:-2px}
-h1 span{color:var(--gold)}
-.hero p{color:var(--muted)}
-.search{max-width:600px;margin:28px auto;display:flex;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px}
-.search input{flex:1;min-width:0;background:none;border:0;outline:0;color:white;padding:12px;font-size:15px}
-.search button,.gold-button{background:var(--gold);color:#171717;border:0;border-radius:7px;padding:11px 18px;font-weight:bold;cursor:pointer}
-.section{margin:35px 0 55px}
-.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.section-head h2{font-size:23px;margin:0}
-.muted{color:var(--muted);font-size:13px}
-.artist-grid,.song-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
-.artist,.song{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:21px;transition:.2s}
-.artist{cursor:pointer;min-height:145px}
-.artist:hover,.song:hover{transform:translateY(-3px);border-color:#8a602e}
-.artist .initial{width:42px;height:42px;border-radius:10px;background:#302519;color:var(--gold);display:grid;place-items:center;font-size:20px;font-weight:bold;margin-bottom:17px}
-.artist h3,.song h3{margin:0 0 7px;font-size:19px}
-.artist p,.song p{margin:0;color:var(--muted);font-size:13px}
-.artist .arrow{color:var(--gold);float:right}
-.filters{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0}
-.filter{background:var(--panel);color:#bbb;border:1px solid var(--line);padding:9px 15px;border-radius:25px;cursor:pointer}
-.filter.active,.filter:hover{background:var(--gold);color:#171717;border-color:var(--gold)}
-.song .genre{font-size:10px;color:var(--gold);letter-spacing:1px;margin-bottom:12px}
-.song-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)}
-.open{background:none;border:0;color:var(--gold);font-weight:bold;cursor:pointer}
-.back{background:none;border:1px solid var(--line);color:#ddd;padding:9px 14px;border-radius:7px;cursor:pointer;margin-bottom:20px}
-.hidden{display:none!important}
-.notice{background:#292116;border:1px solid #594323;color:#e8c58e;border-radius:9px;padding:13px;font-size:13px;line-height:1.6;margin-top:17px}
-footer{border-top:1px solid var(--line);padding:30px;text-align:center;color:var(--muted);font-size:13px}
-footer strong{color:var(--gold)}
-.modal{display:none;position:fixed;inset:0;background:#000c;z-index:10;padding:18px;overflow:auto}
-.modal.show{display:flex;align-items:center;justify-content:center}
-.modal-box{width:100%;max-width:700px;background:#191919;border:1px solid #444;border-radius:15px;padding:26px;position:relative;margin:auto}
-.close{position:absolute;right:17px;top:15px;background:#333;color:white;border:0;border-radius:50%;width:35px;height:35px;font-size:22px;cursor:pointer}
-.modal-box h2{margin:12px 45px 5px 0}
-.modal-box p{color:var(--muted)}
-.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#252525;padding:14px;border-radius:9px;margin:22px 0}
-.tools button{background:#383838;color:white;border:1px solid #555;padding:9px 12px;border-radius:7px;cursor:pointer}
-.tools strong{color:var(--gold)}
-.chords{display:flex;flex-wrap:wrap;gap:10px;margin:15px 0}
-.chord{background:#252525;padding:13px 17px;border-radius:8px;color:var(--gold);font-size:21px;font-weight:bold}
-.diagrams{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
-.diagram{background:#252525;border-radius:9px;padding:12px;text-align:center}
-.diagram strong{color:var(--gold)}
-.diagram svg{width:100%;max-width:105px;height:125px;display:block;margin:8px auto}
-@media(max-width:700px){.artist-grid,.song-grid{grid-template-columns:repeat(2,1fr)}nav{gap:12px}}
-@media(max-width:480px){.artist-grid,.song-grid{grid-template-columns:1fr}.nav{padding:17px}nav a:last-child{display:none}main{padding:30px 17px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AKORHANE, Türkçe ve yabancı şarkılar için gitar akor arşivi.">
+  <meta name="theme-color" content="#101010">
+  <title>AKORHANE | Gitar Akor Arşivi</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
+
 <body>
-<header>
- <div class="nav">
-  <div class="logo">AKOR<span>HANE</span></div>
-  <nav>
-   <a href="#" onclick="showHome()">Ana Sayfa</a>
-   <a href="#sanatcilar" onclick="showHome()">Sanatçılar</a>
-   <a href="#arsiv" onclick="showHome()">Akor Arşivi</a>
-  </nav>
- </div>
-</header>
+  <header>
+    <div class="nav">
+      <a class="logo" href="#" onclick="showHome();return false;">
+        AKOR<span>HANE</span>
+      </a>
+      <nav>
+        <a href="#" onclick="showHome();return false;">Ana Sayfa</a>
+        <a href="#sanatcilar">Sanatçılar</a>
+        <a href="#arsiv">Akor Arşivi</a>
+      </nav>
+    </div>
+  </header>
 
-<main>
- <section class="hero" id="homeHero">
-  <div class="eyebrow">GİTARININ SESİNİ BUL</div>
-  <h1>Şarkını bul.<br><span>Akorunu çal.</span></h1>
-  <p>Türkçe ve yabancı şarkılar için gitar akor arşivi.</p>
-  <div class="search">
-   <input id="search" placeholder="Şarkı veya sanatçı ara..." oninput="searchAll()">
-   <button onclick="searchAll()">ARA</button>
+  <main>
+    <section class="hero" id="homeHero">
+      <div class="eyebrow">GİTARININ SESİNİ BUL</div>
+      <h1>Şarkını bul.<br><span>Akorunu çal.</span></h1>
+      <p>Türkçe ve yabancı şarkılar için gitar akor arşivi.</p>
+
+      <div class="search">
+        <input id="search" type="search" placeholder="Şarkı veya sanatçı ara...">
+        <button onclick="searchAll()">ARA</button>
+      </div>
+    </section>
+
+    <section class="section" id="artistSection">
+      <div class="section-head">
+        <h2 id="sanatcilar">Sanatçılar</h2>
+        <span class="muted">Arşivi keşfet</span>
+      </div>
+      <div class="artist-grid" id="artistGrid"></div>
+    </section>
+
+    <section class="section" id="archiveSection">
+      <div class="section-head">
+        <h2 id="archiveTitle">Şarkı Arşivi</h2>
+        <span class="muted" id="songCount"></span>
+      </div>
+
+      <div class="filters" id="filters">
+        <button class="filter active" data-filter="Tümü">Tümü</button>
+        <button class="filter" data-filter="Türkçe">Türkçe</button>
+        <button class="filter" data-filter="Yabancı">Yabancı</button>
+        <button class="filter" data-filter="Rock">Rock</button>
+        <button class="filter" data-filter="Indie">Indie</button>
+        <button class="filter" data-filter="Pop">Pop</button>
+      </div>
+
+      <div id="artistHeading"></div>
+      <div class="song-grid" id="songGrid"></div>
+    </section>
+
+    <section class="section" id="hakkimizda">
+      <div class="eyebrow">AKORHANE HAKKINDA</div>
+      <h2>Müziğin ortak dili.</h2>
+      <p class="muted">
+        Gitar çalanlar için sade, kullanışlı ve sürekli gelişen bir akor arşivi.
+      </p>
+    </section>
+
+    <div class="notice">
+      AKORHANE bağımsız bir müzik arşivi projesidir.
+      Akor içerikleri doğrulanarak yayımlanır.
+    </div>
+  </main>
+
+  <footer>
+    <strong>AKORHANE</strong> © 2026 · Müziğin ortak dili.
+  </footer>
+
+  <div class="modal" id="modal" onclick="outsideClose(event)">
+    <div class="modal-box">
+      <button class="close" onclick="closeModal()" aria-label="Kapat">×</button>
+
+      <div class="eyebrow" id="detailGenre"></div>
+      <h2 id="detailTitle"></h2>
+      <p id="detailArtist"></p>
+
+      <div id="detailNotice"></div>
+
+      <div id="chordContent">
+        <div class="tools">
+          <span>Ton: <strong id="currentKey"></strong></span>
+          <button onclick="transpose(-1)">− Yarım ton</button>
+          <button onclick="transpose(1)">+ Yarım ton</button>
+          <button onclick="resetTranspose()">Sıfırla</button>
+        </div>
+
+        <h3>Şarkının akorları</h3>
+        <div class="chords" id="chords"></div>
+
+        <h3>Akor basış şemaları</h3>
+        <div class="diagrams" id="diagrams"></div>
+
+        <p class="muted">
+          Örnek akor sıralaması:
+          <span id="progression"></span>
+        </p>
+      </div>
+    </div>
   </div>
- </section>
-
- <section class="section" id="artistSection">
-  <div class="section-head">
-   <h2>Sanatçılar</h2>
-   <span class="muted">Arşivi keşfet</span>
-  </div>
-  <div class="artist-grid" id="artistGrid"></div>
- </section>
-
- <section class="section" id="archiveSection">
-  <div class="section-head">
-   <h2 id="archiveTitle">Şarkı Arşivi</h2>
-   <span class="muted" id="songCount"></span>
-  </div>
-  <div class="filters" id="filters">
-   <button class="filter active" data-filter="Tümü">Tümü</button>
-   <button class="filter" data-filter="Türkçe">Türkçe</button>
-   <button class="filter" data-filter="Yabancı">Yabancı</button>
-   <button class="filter" data-filter="Rock">Rock</button>
-   <button class="filter" data-filter="Indie">Indie</button>
-   <button class="filter" data-filter="Pop">Pop</button>
-  </div>
-  <div id="artistHeading"></div>
-  <div class="song-grid" id="songGrid"></div>
- </section>
- <div class="notice">AKORHANE bağımsız bir müzik arşivi projesidir. Şarkı sözleri ve lisanslı düzenlemeler izinsiz yayımlanmaz. Örnek akorlar demo amaçlıdır.</div>
-</main>
-
-<footer><strong>AKORHANE</strong> © 2026 · Müziğin ortak dili.</footer>
-
-<div class="modal" id="modal" onclick="outsideClose(event)">
- <div class="modal-box">
-  <button class="close" onclick="closeModal()">×</button>
-  <div class="eyebrow" id="detailGenre"></div>
-  <h2 id="detailTitle"></h2>
-  <p id="detailArtist"></p>
-  <div id="detailNotice"></div>
-  <div id="chordContent">
-   <div class="tools">
-    <span>Ton: <strong id="currentKey"></strong></span>
-    <button onclick="transpose(-1)">− Yarım ton</button>
-    <button onclick="transpose(1)">+ Yarım ton</button>
-    <button onclick="resetTranspose()">Sıfırla</button>
-   </div>
-   <h3>Şarkının akorları</h3>
-   <div class="chords" id="chords"></div>
-   <h3>Akor basış şemaları</h3>
-   <div class="diagrams" id="diagrams"></div>
-   <p class="muted">Örnek akor sıralaması: <span id="progression"></span></p>
-  </div>
- </div>
-</div>
-
-<script>
-const artists=[
- {name:"Duman",type:"Türkçe Rock",language:"Türkçe",initial:"D"},
- {name:"Yalın",type:"Türkçe Pop",language:"Türkçe",initial:"Y"},
- {name:"Pilli Bebek",type:"Alternatif Rock",language:"Türkçe",initial:"P"},
- {name:"Nirvana",type:"Grunge / Rock",language:"Yabancı",initial:"N"},
- {name:"Oasis",type:"Britpop",language:"Yabancı",initial:"O"},
- {name:"Radiohead",type:"Alternative Rock",language:"Yabancı",initial:"R"}
-];
-
-const songs=[
- {title:"Geceye Kalan",artist:"AKORHANE Demo",language:"Türkçe",genre:"Rock",key:"Am",chords:["Am","F","C","G"],demo:true},
- {title:"Son Bir Şarkı",artist:"AKORHANE Demo",language:"Türkçe",genre:"Indie",key:"Em",chords:["Em","C","G","D"],demo:true},
- {title:"Uzaklarda",artist:"AKORHANE Demo",language:"Türkçe",genre:"Pop",key:"G",chords:["G","D","Em","C"],demo:true},
- {title:"Midnight Road",artist:"AKORHANE Demo",language:"Yabancı",genre:"Rock",key:"E",chords:["E","A","D","E"],demo:true},
- {title:"Empty Skies",artist:"AKORHANE Demo",language:"Yabancı",genre:"Indie",key:"D",chords:["D","A","Bm","G"],demo:true},
- {title:"Summer Lights",artist:"AKORHANE Demo",language:"Yabancı",genre:"Pop",key:"C",chords:["C","G","Am","F"],demo:true},
-
- {title:"Senden Daha Güzel",artist:"Duman",language:"Türkçe",genre:"Rock"},
- {title:"Her Şeyi Yak",artist:"Duman",language:"Türkçe",genre:"Rock"},
- {title:"Belki Alışman Lazım",artist:"Duman",language:"Türkçe",genre:"Rock"},
- {title:"Ki Sen",artist:"Yalın",language:"Türkçe",genre:"Pop"},
- {title:"Zalim",artist:"Yalın",language:"Türkçe",genre:"Pop"},
- {title:"Bak",artist:"Pilli Bebek",language:"Türkçe",genre:"Rock"},
- {title:"Olsun",artist:"Pilli Bebek",language:"Türkçe",genre:"Rock"},
- {title:"Come As You Are",artist:"Nirvana",language:"Yabancı",genre:"Rock"},
- {title:"Lithium",artist:"Nirvana",language:"Yabancı",genre:"Rock"},
- {title:"Wonderwall",artist:"Oasis",language:"Yabancı",genre:"Rock"},
- {title:"Don't Look Back in Anger",artist:"Oasis",language:"Yabancı",genre:"Rock"},
- {title:"Creep",artist:"Radiohead",language:"Yabancı",genre:"Indie"}
-];
-
-const shapes={
- C:[null,3,2,0,1,0],D:[null,null,0,2,3,2],E:[0,2,2,1,0,0],
- Em:[0,2,2,0,0,0],A:[null,0,2,2,2,0],Am:[null,0,2,2,1,0],
- G:[3,2,0,0,0,3],F:[1,3,3,2,1,1],Bm:[null,2,4,4,3,2],
- Dm:[null,null,0,2,3,1]
-};
-const notes=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-let activeFilter="Tümü",selectedSong=null,shift=0,currentArtist=null;
-
-function renderArtists(){
- document.getElementById("artistGrid").innerHTML=artists.map(a=>{
-  const count=songs.filter(s=>s.artist===a.name).length;
-  return `<article class="artist" onclick="openArtist('${a.name}')">
-   <div class="initial">${a.initial}</div>
-   <span class="arrow">↗</span>
-   <h3>${a.name}</h3><p>${a.type} · ${count} şarkı</p>
-  </article>`;
- }).join("");
-}
-
-function renderSongs(list=songs){
- document.getElementById("songCount").textContent=list.length+" şarkı";
- document.getElementById("songGrid").innerHTML=list.length?list.map(song=>{
-  const index=songs.indexOf(song);
-  return `<article class="song">
-   <div class="genre">${song.language.toUpperCase()} · ${song.genre.toUpperCase()}</div>
-   <h3>${song.title}</h3><p>${song.artist}</p>
-   <div class="song-bottom">
-    <span class="muted">${song.key?"Ton: "+song.key:"Akor bekliyor"}</span>
-    <button class="open" onclick="openSong(${index})">İNCELE →</button>
-   </div>
-  </article>`;
- }).join(""):'<p class="muted">Bu aramada şarkı bulunamadı.</p>';
-}
-
-function openArtist(name){
- currentArtist=name;
- activeFilter="Tümü";
- document.querySelectorAll(".filter").forEach(b=>b.classList.toggle("active",b.dataset.filter==="Tümü"));
- document.getElementById("artistHeading").innerHTML=`<button class="back" onclick="showHome()">← Tüm sanatçılara dön</button><div class="eyebrow">SANATÇI ARŞİVİ</div><h2>${name}</h2>`;
- document.getElementById("artistSection").classList.add("hidden");
- document.getElementById("homeHero").classList.add("hidden");
- document.getElementById("archiveTitle").textContent=name+" · Şarkılar";
- document.getElementById("filters").classList.add("hidden");
- renderSongs(songs.filter(s=>s.artist===name));
- document.getElementById("archiveSection").scrollIntoView({behavior:"smooth"});
-}
-
-function showHome(){
- currentArtist=null;
- document.getElementById("artistSection").classList.remove("hidden");
- document.getElementById("homeHero").classList.remove("hidden");
- document.getElementById("filters").classList.remove("hidden");
- document.getElementById("artistHeading").innerHTML="";
- document.getElementById("archiveTitle").textContent="Şarkı Arşivi";
- document.getElementById("search").value="";
- activeFilter="Tümü";
- document.querySelectorAll(".filter").forEach(b=>b.classList.toggle("active",b.dataset.filter==="Tümü"));
- renderSongs();
- window.scrollTo({top:0,behavior:"smooth"});
-}
-
-function searchAll(){
- currentArtist=null;
- document.getElementById("artistSection").classList.remove("hidden");
- document.getElementById("filters").classList.remove("hidden");
- document.getElementById("artistHeading").innerHTML="";
- document.getElementById("archiveTitle").textContent="Arama Sonuçları";
- const q=document.getElementById("search").value.toLocaleLowerCase("tr").trim();
- const list=songs.filter(s=>(s.title+" "+s.artist).toLocaleLowerCase("tr").includes(q));
- renderSongs(list);
- document.getElementById("archiveSection").scrollIntoView({behavior:"smooth"});
-}
-
-document.querySelectorAll(".filter").forEach(button=>{
- button.addEventListener("click",()=>{
-  if(currentArtist)showHome();
-  document.querySelector(".filter.active")?.classList.remove("active");
-  button.classList.add("active");
-  activeFilter=button.dataset.filter;
-  const list=songs.filter(s=>activeFilter==="Tümü"||s.language===activeFilter||s.genre===activeFilter);
-  renderSongs(list);
- });
-});
-
-function openSong(index){
- selectedSong=songs[index];shift=0;
- document.getElementById("detailTitle").textContent=selectedSong.title;
- document.getElementById("detailArtist").textContent=selectedSong.artist;
- document.getElementById("detailGenre").textContent=selectedSong.language+" · "+selectedSong.genre;
- const hasChords=!!selectedSong.chords;
- document.getElementById("chordContent").classList.toggle("hidden",!hasChords);
- document.getElementById("detailNotice").innerHTML=hasChords?
- '<div class="notice">Bu içerik örnek/demo akor düzenlemesidir.</div>':
- '<div class="notice">Bu şarkı arşive eklendi. Doğrulanmış akor düzenlemesi henüz hazır değil. Şimdilik şarkı sözleri veya izinsiz akor kopyası yayımlanmıyor.</div>';
- if(hasChords)updateDetails();
- document.getElementById("modal").classList.add("show");
-}
-function closeModal(){document.getElementById("modal").classList.remove("show")}
-function outsideClose(e){if(e.target.id==="modal")closeModal()}
-function transposeChord(chord,n){
- const m=chord.match(/^([A-G]#?)(.*)$/);if(!m)return chord;
- const i=notes.indexOf(m[1]);if(i<0)return chord;
- return notes[(i+n+12)%12]+m[2];
-}
-function transpose(n){shift+=n;updateDetails()}
-function resetTranspose(){shift=0;updateDetails()}
-function updateDetails(){
- const cs=selectedSong.chords.map(c=>transposeChord(c,shift));
- document.getElementById("currentKey").textContent=transposeChord(selectedSong.key,shift);
- document.getElementById("chords").innerHTML=cs.map(c=>`<div class="chord">${c}</div>`).join("");
- document.getElementById("progression").textContent=cs.join(" · ");
- document.getElementById("diagrams").innerHTML=[...new Set(cs)].map(c=>{
-  const shape=shapes[c];return shape?diagram(c,shape):`<div class="diagram">${c}<p class="muted">Şema henüz eklenmedi.</p></div>`;
- }).join("");
-}
-function diagram(name,shape){
- const l=16,r=90,t=18,b=112;let svg='<svg viewBox="0 0 106 135">';
- for(let i=0;i<6;i++){let x=l+i*(r-l)/5;svg+=`<line x1="${x}" y1="${t}" x2="${x}" y2="${b}" stroke="#aaa"/>`}
- for(let i=0;i<5;i++){let y=t+i*(b-t)/4;svg+=`<line x1="${l}" y1="${y}" x2="${r}" y2="${y}" stroke="#aaa" stroke-width="${i===0?3:1}"/>`}
- shape.forEach((p,i)=>{let x=l+i*(r-l)/5;if(p===null)svg+=`<text x="${x}" y="12" fill="#f88" text-anchor="middle">×</text>`;else if(p===0)svg+=`<circle cx="${x}" cy="7" r="3" fill="none" stroke="#f0a43a"/>`;else{let y=t+(p-.5)*(b-t)/4;svg+=`<circle cx="${x}" cy="${y}" r="5" fill="#f0a43a"/>`}});
- return `<div class="diagram"><strong>${name}</strong>${svg}</svg><span class="muted">E A D G B E</span></div>`;
-}
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
-renderArtists();renderSongs();
-</script>
 </body>
 </html>
