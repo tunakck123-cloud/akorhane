@@ -253,3 +253,123 @@ button:disabled {
     padding: 20px 15px;
   }
 }
+
+/* Şarkı editörü */
+
+.chord-editor {
+  margin-top: 25px;
+  padding: 20px;
+  background: #151515;
+  border: 1px solid #444;
+  border-radius: 10px;
+}
+
+.chord-editor h3 {
+  margin: 22px 0 12px;
+}
+
+.chord-editor h3:first-child {
+  margin-top: 0;
+}
+
+.chord-editor button {
+  margin-top: 15px;
+}
+
+#songLyrics {
+  width: 100%;
+  min-height: 260px;
+  padding: 15px;
+  color: #eee;
+  background: #202020;
+  border: 1px solid #444;
+  border-radius: 8px;
+  outline: none;
+  resize: vertical;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+#songLyrics:focus {
+  border-color: var(--gold);
+}
+
+.chord-event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chord-event-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #222;
+  border: 1px solid #393939;
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+.chord-event-item span {
+  color: var(--gold);
+  font-weight: bold;
+}
+
+.chord-event-item button {
+  margin: 0;
+  padding: 6px 10px;
+}
+
+.lyrics-preview {
+  padding: 22px 16px;
+  min-height: 100px;
+  background: #202020;
+  border: 1px solid #393939;
+  border-radius: 8px;
+  color: #eee;
+  font-size: 15px;
+  line-height: 3.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.preview-word {
+  display: inline-block;
+  position: relative;
+}
+
+.preview-word.has-chord {
+  margin-top: 0;
+}
+
+.preview-chord {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+#songMessage,
+#selectionMessage {
+  font-size: 13px;
+  min-height: 18px;
+}
+
+@media (max-width: 600px) {
+  .chord-editor {
+    padding: 14px;
+  }
+
+  .lyrics-preview {
+    font-size: 14px;
+  }
+}
