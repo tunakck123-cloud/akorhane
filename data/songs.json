@@ -1,33 +1,99 @@
 
 [
   {
-    "id": "demo-001",
-    "title": "Geceye Kalan",
+    "id": "duman-001",
+    "title": "Senden Daha Güzel",
     "artistId": "duman",
     "language": "Türkçe",
     "genre": "Rock",
-    "key": "Am",
-    "chords": ["Am", "F", "C", "G"],
-    "demo": true
+    "demo": false
   },
   {
-    "id": "demo-002",
-    "title": "Son Bir Şarkı",
+    "id": "duman-002",
+    "title": "Her Şeyi Yak",
+    "artistId": "duman",
+    "language": "Türkçe",
+    "genre": "Rock",
+    "demo": false
+  },
+  {
+    "id": "duman-003",
+    "title": "Belki Alışman Lazım",
+    "artistId": "duman",
+    "language": "Türkçe",
+    "genre": "Rock",
+    "demo": false
+  },
+  {
+    "id": "yalin-001",
+    "title": "Ki Sen",
     "artistId": "yalin",
     "language": "Türkçe",
-    "genre": "Indie",
-    "key": "Em",
-    "chords": ["Em", "C", "G", "D"],
-    "demo": true
+    "genre": "Pop",
+    "demo": false
   },
   {
-    "id": "demo-003",
-    "title": "Midnight Road",
+    "id": "yalin-002",
+    "title": "Zalim",
+    "artistId": "yalin",
+    "language": "Türkçe",
+    "genre": "Pop",
+    "demo": false
+  },
+  {
+    "id": "pilli-001",
+    "title": "Bak",
+    "artistId": "pilli-bebek",
+    "language": "Türkçe",
+    "genre": "Rock",
+    "demo": false
+  },
+  {
+    "id": "pilli-002",
+    "title": "Olsun",
+    "artistId": "pilli-bebek",
+    "language": "Türkçe",
+    "genre": "Rock",
+    "demo": false
+  },
+  {
+    "id": "nirvana-001",
+    "title": "Come As You Are",
     "artistId": "nirvana",
     "language": "Yabancı",
     "genre": "Rock",
-    "key": "E",
-    "chords": ["E", "A", "D", "E"],
-    "demo": true
+    "demo": false
+  },
+  {
+    "id": "nirvana-002",
+    "title": "Lithium",
+    "artistId": "nirvana",
+    "language": "Yabancı",
+    "genre": "Rock",
+    "demo": false
+  },
+  {
+    "id": "oasis-001",
+    "title": "Wonderwall",
+    "artistId": "oasis",
+    "language": "Yabancı",
+    "genre": "Rock",
+    "demo": false
+  },
+  {
+    "id": "oasis-002",
+    "title": "Don't Look Back in Anger",
+    "artistId": "oasis",
+    "language": "Yabancı",
+    "genre": "Rock",
+    "demo": false
+  },
+  {
+    "id": "radiohead-001",
+    "title": "Creep",
+    "artistId": "radiohead",
+    "language": "Yabancı",
+    "genre": "Indie",
+    "demo": false
   }
 ]
