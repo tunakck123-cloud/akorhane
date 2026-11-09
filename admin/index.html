@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101010">
+  <title>AKORHANE | Yönetim Paneli</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="admin.js" defer></script>
+</head>
+<body>
+  <main class="admin-page">
+    <a class="logo" href="../index.html">
+      AKOR<span>HANE</span>
+    </a>
+
+    <section class="admin-login">
+      <div class="eyebrow">AKORHANE YÖNETİM</div>
+      <h1>Tekrar <span>hoş geldin.</span></h1>
+      <p class="muted">Yönetim paneline giriş yap.</p>
+
+      <form id="loginForm">
+        <label for="email">E-posta</label>
+        <input id="email" type="email" placeholder="E-posta adresin" required>
+
+        <label for="password">Şifre</label>
+        <input id="password" type="password" placeholder="Şifren" required>
+
+        <button class="gold-button" type="submit" id="loginButton">
+          GİRİŞ YAP
+        </button>
+
+        <p id="loginMessage" role="status"></p>
+      </form>
+
+      <a class="admin-back" href="../index.html">← Ana sayfaya dön</a>
+    </section>
+  </main>
+</body>
+</html>
