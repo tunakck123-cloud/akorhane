@@ -8,6 +8,7 @@ let shift = 0;
 
 const notes = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
 
+// Akor şekilleri: teller kalından inceye (E-A-D-G-B-e).
 const shapes = {
   C:[null,3,2,0,1,0],
   D:[null,null,0,2,3,2],
@@ -19,8 +20,35 @@ const shapes = {
   F:[1,3,3,2,1,1],
   Bm:[null,2,4,4,3,2],
   Dm:[null,null,0,2,3,1],
-  B:[null,2,4,4,4,2]
+  B:[null,2,4,4,4,2],
+  D7:[null,null,0,2,1,2],
+  A7:[null,0,2,0,2,0],
+  E7:[0,2,0,1,0,0],
+  Am7:[null,0,2,0,1,0],
+  Cadd9:[null,3,2,0,3,0],
+  Asus2:[null,0,2,2,0,0],
+  G7:[3,2,0,0,0,1],
+  Fmaj7:[null,null,3,2,1,0],
+  Amaj7:[null,0,2,1,2,0]
 };
+
+function normalizeChord(chord) {
+  const value = String(chord || "").trim();
+  const match = value.match(/^([a-g])([#b]?)(.*)$/i);
+  if (!match) return value;
+
+  return match[1].toUpperCase() + match[2] + match[3];
+}
+
+function chordRootToSharp(root) {
+  return ({
+    "Db":"C#",
+    "Eb":"D#",
+    "Gb":"F#",
+    "Ab":"G#",
+    "Bb":"A#"
+  })[root] || root;
+}
 
 let db = null;
 
@@ -290,13 +318,15 @@ function outsideClose(event) {
 }
 
 function transposeChord(chord, amount) {
-  const match = chord.match(/^([A-G]#?)(.*)$/);
-  if (!match) return chord;
+  const normalized = normalizeChord(chord);
+  const match = normalized.match(/^([A-G])([#b]?)(.*)$/);
+  if (!match) return normalized;
 
-  const index = notes.indexOf(match[1]);
-  if (index < 0) return chord;
+  const root = chordRootToSharp(match[1] + match[2]);
+  const index = notes.indexOf(root);
+  if (index < 0) return normalized;
 
-  return notes[(index + amount + 12) % 12] + match[2];
+  return notes[(index + amount + 120) % 12] + match[3];
 }
 
 function transpose(amount) {
@@ -311,7 +341,7 @@ function resetTranspose() {
 
 function updateDetails() {
   const chords = (selectedSong.chords || []).map(chord =>
-    transposeChord(chord, shift)
+    transposeChord(normalizeChord(chord), shift)
   );
 
   document.getElementById("currentKey").textContent =
@@ -327,9 +357,11 @@ function updateDetails() {
 
   document.getElementById("diagrams").innerHTML =
     [...new Set(chords)].map(chord => {
-      return shapes[chord]
-        ? makeDiagram(chord, shapes[chord])
-        : `<div class="diagram">${escapeHTML(chord)}<p class="muted">Şema henüz eklenmedi.</p></div>`;
+      const shapeKey = normalizeChord(chord);
+
+      return shapes[shapeKey]
+        ? makeDiagram(chord, shapes[shapeKey])
+        : `<div class="diagram">${escapeHTML(chord)}<p class="muted">Bu akor için şema henüz eklenmedi.</p></div>`;
     }).join("");
 
   renderSongLyrics();
@@ -393,35 +425,54 @@ function renderSongLyrics() {
 }
 
 function makeDiagram(name, shape) {
-  const left = 16, right = 90, top = 18, bottom = 112;
-  let svg = '<svg viewBox="0 0 106 135">';
+  const left = 16, right = 90, top = 22, bottom = 112;
+  const fretted = shape.filter(value =>
+    Number.isInteger(value) && value > 0
+  );
+
+  const minFret = fretted.length ? Math.min(...fretted) : 1;
+  const offset = minFret > 1 ? minFret - 1 : 0;
+
+  let svg = '<svg viewBox="0 0 106 140" role="img" aria-label="' +
+    escapeHTML(name) + ' akor şeması">';
+
+  if (offset > 0) {
+    svg += `<text x="4" y="${top + 12}" fill="#aaa" font-size="9">${offset + 1}. perde</text>`;
+  }
 
   for (let i = 0; i < 6; i++) {
-    const x = left + i * (right-left)/5;
-    svg += `<line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" stroke="#aaa"/>`;
+    const x = left + i * (right - left) / 5;
+    svg += `<line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" stroke="#aaa" stroke-width="1"/>`;
   }
 
   for (let i = 0; i < 5; i++) {
-    const y = top + i * (bottom-top)/4;
-    svg += `<line x1="${left}" y1="${y}" x2="${right}" y2="${y}" stroke="#aaa" stroke-width="${i===0?3:1}"/>`;
+    const y = top + i * (bottom - top) / 4;
+    svg += `<line x1="${left}" y1="${y}" x2="${right}" y2="${y}" stroke="#aaa" stroke-width="${i === 0 && offset === 0 ? 3 : 1}"/>`;
   }
 
   shape.forEach((position, index) => {
-    const x = left + index * (right-left)/5;
+    const x = left + index * (right - left) / 5;
 
     if (position === null) {
-      svg += `<text x="${x}" y="12" fill="#f88" text-anchor="middle">×</text>`;
+      svg += `<text x="${x}" y="14" fill="#f88" font-size="12" text-anchor="middle">×</text>`;
     } else if (position === 0) {
-      svg += `<circle cx="${x}" cy="7" r="3" fill="none" stroke="#f0a43a"/>`;
+      svg += `<circle cx="${x}" cy="10" r="3" fill="none" stroke="#f0a43a" stroke-width="1.5"/>`;
     } else {
-      const y = top + (position-.5)*(bottom-top)/4;
+      const relativeFret = position - offset;
+      const y = top + (relativeFret - 0.5) * (bottom - top) / 4;
       svg += `<circle cx="${x}" cy="${y}" r="5" fill="#f0a43a"/>`;
     }
   });
 
   svg += "</svg>";
 
-  return `<div class="diagram"><strong>${escapeHTML(name)}</strong>${svg}<span class="muted">E A D G B E</span></div>`;
+  return `
+    <div class="diagram">
+      <strong>${escapeHTML(name)}</strong>
+      ${svg}
+      <span class="muted">E A D G B e</span>
+    </div>
+  `;
 }
 
 document.querySelectorAll(".filter").forEach(button => {
