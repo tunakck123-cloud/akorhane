@@ -339,9 +339,14 @@ function resetTranspose() {
   updateDetails();
 }
 
+/* AKORLARI AYIR VE ŞEMALARI ÇİZ */
+
 function updateDetails() {
-  const chords = (selectedSong.chords || []).map(chord =>
-    transposeChord(normalizeChord(chord), shift)
+  const chords = (selectedSong.chords || []).flatMap(value =>
+    String(value || "")
+      .split(/[\s,;]+/)
+      .filter(Boolean)
+      .map(chord => transposeChord(normalizeChord(chord), shift))
   );
 
   document.getElementById("currentKey").textContent =
@@ -350,7 +355,9 @@ function updateDetails() {
       : "Belirtilmedi";
 
   document.getElementById("chords").innerHTML =
-    chords.map(chord => `<div class="chord">${escapeHTML(chord)}</div>`).join("");
+    chords.map(chord =>
+      `<div class="chord">${escapeHTML(chord)}</div>`
+    ).join("");
 
   document.getElementById("progression").textContent =
     chords.join(" · ");
@@ -361,11 +368,16 @@ function updateDetails() {
 
       return shapes[shapeKey]
         ? makeDiagram(chord, shapes[shapeKey])
-        : `<div class="diagram">${escapeHTML(chord)}<p class="muted">Bu akor için şema henüz eklenmedi.</p></div>`;
+        : `<div class="diagram">
+             <strong>${escapeHTML(chord)}</strong>
+             <p class="muted">Bu akor için şema henüz eklenmedi.</p>
+           </div>`;
     }).join("");
 
   renderSongLyrics();
 }
+
+/* ŞARKI SÖZLERİNİ VE ÜZERİNDEKİ AKORLARI GÖSTER */
 
 function renderSongLyrics() {
   const display = document.getElementById("songLyricsDisplay");
@@ -396,7 +408,8 @@ function renderSongLyrics() {
     position = end;
 
     if (/^\s+$/.test(token)) {
-      html += escapeHTML(token);
+      // Birden fazla boş satırı tek satıra indir.
+      html += token.includes("\n") ? "\n" : " ";
       return;
     }
 
@@ -423,6 +436,8 @@ function renderSongLyrics() {
 
   display.innerHTML = html;
 }
+
+/* GİTAR AKOR ŞEMASI */
 
 function makeDiagram(name, shape) {
   const left = 16, right = 90, top = 22, bottom = 112;
@@ -474,6 +489,8 @@ function makeDiagram(name, shape) {
     </div>
   `;
 }
+
+/* FİLTRE VE ARAMA OLAYLARI */
 
 document.querySelectorAll(".filter").forEach(button => {
   button.addEventListener("click", () => {
