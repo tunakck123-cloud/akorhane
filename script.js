@@ -56,7 +56,8 @@ async function init() {
       ...song,
       artistId: song.artist_id,
       key: song.song_key,
-      chords: song.chords || []
+      chords: song.chords || [],
+      chord_events: song.chord_events || []
     }));
 
     renderArtists();
@@ -73,6 +74,16 @@ async function init() {
   }
 }
 
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
 function renderArtists() {
   const grid = document.getElementById("artistGrid");
 
@@ -82,11 +93,11 @@ function renderArtists() {
     ).length;
 
     return `
-      <article class="artist" data-artist="${artist.id}">
-        <div class="initial">${artist.initial || artist.name[0]}</div>
+      <article class="artist" data-artist="${escapeHTML(artist.id)}">
+        <div class="initial">${escapeHTML(artist.initial || artist.name[0])}</div>
         <span class="arrow">↗</span>
-        <h3>${artist.name}</h3>
-        <p>${artist.genre || ""} · ${count} şarkı</p>
+        <h3>${escapeHTML(artist.name)}</h3>
+        <p>${escapeHTML(artist.genre || "")} · ${count} şarkı</p>
       </article>
     `;
   }).join("");
@@ -111,13 +122,13 @@ function renderSongs(list = songs) {
     return `
       <article class="song">
         <div class="genre">
-          ${song.language || ""} · ${song.genre || ""}
+          ${escapeHTML(song.language || "")} · ${escapeHTML(song.genre || "")}
         </div>
-        <h3>${song.title}</h3>
-        <p>${artist ? artist.name : "Bilinmeyen sanatçı"}</p>
+        <h3>${escapeHTML(song.title)}</h3>
+        <p>${escapeHTML(artist ? artist.name : "Bilinmeyen sanatçı")}</p>
         <div class="song-bottom">
           <span class="muted">
-            ${song.key ? "Ton: " + song.key : "Akor bekliyor"}
+            ${song.key ? "Ton: " + escapeHTML(song.key) : "Akor bekliyor"}
           </span>
           <button class="open" data-song="${index}">
             İNCELE →
@@ -149,14 +160,14 @@ function openArtist(id) {
   document.getElementById("artistHeading").innerHTML =
     `<button class="back" id="backButton">← Tüm sanatçılar</button>
      <div class="eyebrow">SANATÇI ARŞİVİ</div>
-     <h2>${artist.name}</h2>`;
+     <h2>${escapeHTML(artist.name)}</h2>`;
 
   document.getElementById("backButton").addEventListener("click", showHome);
 
   renderSongs(songs.filter(song => song.artistId === id));
 
   document.getElementById("archiveSection").scrollIntoView({
-    behavior:"smooth"
+    behavior: "smooth"
   });
 }
 
@@ -178,7 +189,7 @@ function showHome() {
   });
 
   renderSongs();
-  window.scrollTo({top:0,behavior:"smooth"});
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function searchAll() {
@@ -203,7 +214,7 @@ function searchAll() {
   renderSongs(results);
 
   document.getElementById("archiveSection").scrollIntoView({
-    behavior:"smooth"
+    behavior: "smooth"
   });
 }
 
@@ -246,15 +257,26 @@ function openSong(index) {
   const hasChords = Array.isArray(selectedSong.chords) &&
     selectedSong.chords.length > 0;
 
+  const hasLyrics = Boolean(selectedSong.lyrics?.trim());
+
+  const hasChordEvents = Array.isArray(selectedSong.chord_events) &&
+    selectedSong.chord_events.length > 0;
+
+  const hasContent = hasChords || hasLyrics || hasChordEvents;
+
   document.getElementById("chordContent").classList.toggle(
-    "hidden", !hasChords
+    "hidden", !hasContent
   );
 
-  document.getElementById("detailNotice").innerHTML = hasChords
-    ? '<div class="notice">Akor düzenlemesi mevcut. İçeriğin doğruluğu ayrıca kontrol edilmelidir.</div>'
-    : '<div class="notice">Bu şarkının akor düzenlemesi henüz eklenmedi.</div>';
+  document.getElementById("detailNotice").innerHTML = hasContent
+    ? '<div class="notice">Şarkı içeriği hazır.</div>'
+    : '<div class="notice">Bu şarkının akor ve söz düzenlemesi henüz eklenmedi.</div>';
 
-  if (hasChords) updateDetails();
+  document.getElementById("lyricsSection").classList.toggle(
+    "hidden", !hasLyrics
+  );
+
+  if (hasContent) updateDetails();
 
   document.getElementById("modal").classList.add("show");
 }
@@ -288,7 +310,7 @@ function resetTranspose() {
 }
 
 function updateDetails() {
-  const chords = selectedSong.chords.map(chord =>
+  const chords = (selectedSong.chords || []).map(chord =>
     transposeChord(chord, shift)
   );
 
@@ -298,7 +320,7 @@ function updateDetails() {
       : "Belirtilmedi";
 
   document.getElementById("chords").innerHTML =
-    chords.map(chord => `<div class="chord">${chord}</div>`).join("");
+    chords.map(chord => `<div class="chord">${escapeHTML(chord)}</div>`).join("");
 
   document.getElementById("progression").textContent =
     chords.join(" · ");
@@ -307,8 +329,67 @@ function updateDetails() {
     [...new Set(chords)].map(chord => {
       return shapes[chord]
         ? makeDiagram(chord, shapes[chord])
-        : `<div class="diagram">${chord}<p class="muted">Şema henüz eklenmedi.</p></div>`;
+        : `<div class="diagram">${escapeHTML(chord)}<p class="muted">Şema henüz eklenmedi.</p></div>`;
     }).join("");
+
+  renderSongLyrics();
+}
+
+function renderSongLyrics() {
+  const display = document.getElementById("songLyricsDisplay");
+  const lyrics = selectedSong.lyrics || "";
+
+  if (!lyrics.trim()) {
+    display.innerHTML = "";
+    return;
+  }
+
+  const events = (selectedSong.chord_events || [])
+    .filter(event =>
+      Number.isInteger(event.start) &&
+      Number.isInteger(event.end) &&
+      event.start >= 0 &&
+      event.end <= lyrics.length &&
+      event.end > event.start
+    )
+    .sort((a, b) => a.start - b.start);
+
+  const tokens = lyrics.match(/\s+|[^\s]+/g) || [];
+  let position = 0;
+  let html = "";
+
+  tokens.forEach(token => {
+    const start = position;
+    const end = start + token.length;
+    position = end;
+
+    if (/^\s+$/.test(token)) {
+      html += escapeHTML(token);
+      return;
+    }
+
+    const matchingEvents = events.filter(event =>
+      event.start === start && event.end === end
+    );
+
+    if (matchingEvents.length) {
+      const chordLabels = matchingEvents.map(event => {
+        const chord = transposeChord(event.chord, shift);
+        return `<span class="song-chord">${escapeHTML(chord)}</span>`;
+      }).join("");
+
+      html += `
+        <span class="lyric-word has-song-chord">
+          ${chordLabels}
+          <span>${escapeHTML(token)}</span>
+        </span>
+      `;
+    } else {
+      html += `<span class="lyric-word">${escapeHTML(token)}</span>`;
+    }
+  });
+
+  display.innerHTML = html;
 }
 
 function makeDiagram(name, shape) {
@@ -340,7 +421,7 @@ function makeDiagram(name, shape) {
 
   svg += "</svg>";
 
-  return `<div class="diagram"><strong>${name}</strong>${svg}<span class="muted">E A D G B E</span></div>`;
+  return `<div class="diagram"><strong>${escapeHTML(name)}</strong>${svg}<span class="muted">E A D G B E</span></div>`;
 }
 
 document.querySelectorAll(".filter").forEach(button => {
