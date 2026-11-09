@@ -456,31 +456,36 @@ footer strong {
   border-radius: 10px;
   color: #eee;
   font-size: 15px;
-  line-height: 1.4;
+  line-height: 1.5;
   white-space: pre-line;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .lyric-word {
-  display: inline-block;
+  display: inline;
   position: relative;
   vertical-align: baseline;
-  line-height: 1.4;
+  line-height: inherit;
 }
 
 .lyric-word.has-song-chord {
+  display: inline-block;
   position: relative;
+  vertical-align: baseline;
+  padding-top: 10px;
+  margin-top: -10px;
 }
 
 .song-chord {
   position: absolute;
-  bottom: 100%;
+  bottom: calc(100% - 2px);
   left: 50%;
   transform: translateX(-50%);
   color: var(--gold);
   font-size: 12px;
   font-weight: bold;
-  line-height: 1.4;
+  line-height: 1;
   white-space: nowrap;
   pointer-events: none;
 }
@@ -525,7 +530,8 @@ footer strong {
   .song-lyrics-display {
     padding: 14px 12px;
     font-size: 14px;
-    line-height: 1.4;
+    line-height: 1.5;
+    overflow-wrap: normal;
   }
 
   .modal-box {
