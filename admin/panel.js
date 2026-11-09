@@ -4,24 +4,43 @@ const db = window.supabase.createClient(
   window.AKORHANE_CONFIG.key
 );
 
-const statusText = document.getElementById("adminStatus");
-const logoutButton = document.getElementById("logoutButton");
+const $ = id => document.getElementById(id);
 
-const artistForm = document.getElementById("artistForm");
-const artistList = document.getElementById("artistList");
-const artistMessage = document.getElementById("artistMessage");
+const statusText = $("adminStatus");
+const logoutButton = $("logoutButton");
 
-const artistOriginalId = document.getElementById("artistOriginalId");
-const artistName = document.getElementById("artistName");
-const artistId = document.getElementById("artistId");
-const artistLanguage = document.getElementById("artistLanguage");
-const artistGenre = document.getElementById("artistGenre");
-const artistInitial = document.getElementById("artistInitial");
-const artistPublished = document.getElementById("artistPublished");
-const artistSaveButton = document.getElementById("artistSaveButton");
-const artistCancelButton = document.getElementById("artistCancelButton");
+const artistForm = $("artistForm");
+const artistList = $("artistList");
+const artistMessage = $("artistMessage");
+
+const artistOriginalId = $("artistOriginalId");
+const artistName = $("artistName");
+const artistId = $("artistId");
+const artistLanguage = $("artistLanguage");
+const artistGenre = $("artistGenre");
+const artistInitial = $("artistInitial");
+const artistPublished = $("artistPublished");
+const artistSaveButton = $("artistSaveButton");
+const artistCancelButton = $("artistCancelButton");
+
+const songForm = $("songForm");
+const songList = $("songList");
+const songMessage = $("songMessage");
+const songLyrics = $("songLyrics");
+const songArtist = $("songArtist");
+const songOriginalId = $("songOriginalId");
+const chordChoice = $("chordChoice");
+const chordEventList = $("chordEventList");
+const lyricsPreview = $("lyricsPreview");
+const selectionMessage = $("selectionMessage");
 
 let isAdmin = false;
+let artists = [];
+let songs = [];
+let chordEvents = [];
+let selectedRange = null;
+
+// GÜVENLİK VE GİRİŞ
 
 async function checkAdmin() {
   try {
@@ -53,12 +72,52 @@ async function checkAdmin() {
     statusText.textContent = "Yönetici olarak giriş yaptın.";
 
     await loadArtists();
+    await loadSongs();
 
   } catch (error) {
     console.error(error);
-    statusText.textContent = "Yetki kontrolü başarısız: " + error.message;
+    statusText.textContent =
+      "Yetki kontrolü başarısız: " + error.message;
   }
 }
+
+logoutButton.addEventListener("click", async () => {
+  logoutButton.disabled = true;
+
+  const { error } = await db.auth.signOut();
+
+  if (error) {
+    statusText.textContent = "Çıkış yapılamadı: " + error.message;
+    logoutButton.disabled = false;
+    return;
+  }
+
+  window.location.replace("index.html");
+});
+
+// YARDIMCI FONKSİYONLAR
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+function createSlug(value) {
+  return value
+    .toLocaleLowerCase("tr")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ı/g, "i")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+// SANATÇI YÖNETİMİ
 
 async function loadArtists() {
   artistList.textContent = "Sanatçılar yükleniyor...";
@@ -69,23 +128,23 @@ async function loadArtists() {
     .order("name");
 
   if (error) {
-    artistList.textContent = "Sanatçılar yüklenemedi: " + error.message;
+    artistList.textContent = "Hata: " + error.message;
     return;
   }
+
+  artists = data || [];
 
   artistList.innerHTML = "";
 
-  if (!data.length) {
+  if (!artists.length) {
     artistList.textContent = "Henüz sanatçı eklenmemiş.";
-    return;
   }
 
-  data.forEach(artist => {
+  artists.forEach(artist => {
     const item = document.createElement("div");
     item.className = "admin-list-item";
 
     const info = document.createElement("div");
-
     const name = document.createElement("strong");
     name.textContent = artist.name;
 
@@ -113,6 +172,23 @@ async function loadArtists() {
     item.append(info, actions);
     artistList.appendChild(item);
   });
+
+  updateArtistOptions();
+}
+
+function updateArtistOptions() {
+  const currentValue = songArtist.value;
+
+  songArtist.innerHTML = '<option value="">Sanatçı seç</option>';
+
+  artists.forEach(artist => {
+    const option = document.createElement("option");
+    option.value = artist.id;
+    option.textContent = artist.name;
+    songArtist.appendChild(option);
+  });
+
+  songArtist.value = currentValue;
 }
 
 artistForm.addEventListener("submit", async event => {
@@ -137,7 +213,6 @@ artistForm.addEventListener("submit", async event => {
 
   artistSaveButton.disabled = true;
   artistSaveButton.textContent = "KAYDEDİLİYOR...";
-  artistMessage.textContent = "";
 
   const artistData = {
     id,
@@ -170,9 +245,8 @@ artistForm.addEventListener("submit", async event => {
 
     if (result.error) throw result.error;
 
-    artistMessage.textContent = originalId
-      ? "Sanatçı güncellendi."
-      : "Sanatçı başarıyla eklendi.";
+    artistMessage.textContent =
+      originalId ? "Sanatçı güncellendi." : "Sanatçı eklendi.";
 
     resetArtistForm();
     await loadArtists();
@@ -189,7 +263,6 @@ function editArtist(artist) {
   artistOriginalId.value = artist.id;
   artistId.value = artist.id;
   artistId.disabled = true;
-
   artistName.value = artist.name || "";
   artistLanguage.value = artist.language || "Türkçe";
   artistGenre.value = artist.genre || "";
@@ -216,7 +289,7 @@ artistCancelButton.addEventListener("click", () => {
 
 async function deleteArtist(artist) {
   const approved = confirm(
-    `"${artist.name}" sanatçısını silmek istediğine emin misin?\n\nBu işlem, veritabanındaki ilişkili şarkıları da silebilir.`
+    `"${artist.name}" sanatçısını silmek istediğine emin misin?\n\nBu işlem ilişkili şarkıları da silebilir.`
   );
 
   if (!approved) return;
@@ -233,20 +306,369 @@ async function deleteArtist(artist) {
 
   artistMessage.textContent = "Sanatçı silindi.";
   await loadArtists();
+  await loadSongs();
 }
 
-logoutButton.addEventListener("click", async () => {
-  logoutButton.disabled = true;
+// ŞARKI YÖNETİMİ
 
-  const { error } = await db.auth.signOut();
+async function loadSongs() {
+  songList.textContent = "Şarkılar yükleniyor...";
+
+  const { data, error } = await db
+    .from("songs")
+    .select("*")
+    .order("title");
 
   if (error) {
-    statusText.textContent = "Çıkış yapılamadı: " + error.message;
-    logoutButton.disabled = false;
+    songList.textContent = "Hata: " + error.message;
     return;
   }
 
-  window.location.replace("index.html");
+  songs = data || [];
+  songList.innerHTML = "";
+
+  if (!songs.length) {
+    songList.textContent = "Henüz şarkı eklenmemiş.";
+    return;
+  }
+
+  songs.forEach(song => {
+    const artist = artists.find(a => a.id === song.artist_id);
+
+    const item = document.createElement("div");
+    item.className = "admin-list-item";
+
+    const info = document.createElement("div");
+    const title = document.createElement("strong");
+    title.textContent = song.title;
+
+    const details = document.createElement("p");
+    details.textContent =
+      `${artist?.name || "Bilinmeyen sanatçı"} · ${song.song_key || "Ton belirtilmedi"} · ${song.published ? "Yayında" : "Taslak"}`;
+
+    info.append(title, details);
+
+    const actions = document.createElement("div");
+    actions.className = "admin-actions";
+
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.textContent = "DÜZENLE";
+    editButton.addEventListener("click", () => editSong(song));
+
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.textContent = "SİL";
+    deleteButton.className = "delete-button";
+    deleteButton.addEventListener("click", () => deleteSong(song));
+
+    actions.append(editButton, deleteButton);
+    item.append(info, actions);
+    songList.appendChild(item);
+  });
+}
+
+function editSong(song) {
+  songOriginalId.value = song.id;
+  $("songTitle").value = song.title || "";
+  songArtist.value = song.artist_id || "";
+  $("songLanguage").value = song.language || "Türkçe";
+  $("songGenre").value = song.genre || "";
+  $("songKey").value = song.song_key || "";
+  $("songChords").value = (song.chords || []).join(", ");
+  songLyrics.value = song.lyrics || "";
+  $("songPublished").checked = !!song.published;
+
+  chordEvents = Array.isArray(song.chord_events)
+    ? [...song.chord_events]
+    : [];
+
+  selectedRange = null;
+  selectionMessage.textContent = "Sözlerden bir kelime seç.";
+  renderChordEvents();
+  renderLyricsPreview();
+
+  $("songSaveButton").textContent = "DEĞİŞİKLİKLERİ KAYDET";
+
+  songForm.scrollIntoView({ behavior: "smooth" });
+}
+
+// KELİME SEÇİMİ VE AKOR YERLEŞTİRME
+
+function updateSelectedRange() {
+  const start = songLyrics.selectionStart;
+  const end = songLyrics.selectionEnd;
+
+  if (start === end) {
+    selectedRange = null;
+    selectionMessage.textContent = "Bir kelimeyi seçmelisin.";
+    return;
+  }
+
+  const selectedText = songLyrics.value.slice(start, end);
+
+  if (!selectedText.trim() || /\s/.test(selectedText)) {
+    selectedRange = null;
+    selectionMessage.textContent =
+      "Lütfen boşluk içermeyen tek bir kelime seç.";
+    return;
+  }
+
+  selectedRange = { start, end };
+
+  selectionMessage.textContent =
+    `Seçilen kelime: "${selectedText}"`;
+}
+
+songLyrics.addEventListener("mouseup", updateSelectedRange);
+songLyrics.addEventListener("keyup", updateSelectedRange);
+
+$("placeChordButton").addEventListener("click", () => {
+  if (!selectedRange) {
+    selectionMessage.textContent =
+      "Önce şarkı sözlerinden bir kelime seç.";
+    return;
+  }
+
+  const { start, end } = selectedRange;
+
+  const overlaps = chordEvents.some(event =>
+    start < event.end && end > event.start
+  );
+
+  if (overlaps) {
+    selectionMessage.textContent =
+      "Bu kelimenin üzerinde zaten bir akor var. Önce onu sil.";
+    return;
+  }
+
+  const chord = chordChoice.value;
+
+  chordEvents.push({
+    start,
+    end,
+    chord
+  });
+
+  chordEvents.sort((a, b) => a.start - b.start);
+
+  selectionMessage.textContent =
+    `${chord} akoru yerleştirildi.`;
+
+  renderChordEvents();
+  renderLyricsPreview();
 });
+
+function renderChordEvents() {
+  chordEventList.innerHTML = "";
+
+  if (!chordEvents.length) {
+    chordEventList.textContent = "Henüz akor eklenmedi.";
+    return;
+  }
+
+  chordEvents.forEach((event, index) => {
+    const item = document.createElement("div");
+    item.className = "chord-event-item";
+
+    const word = songLyrics.value.slice(event.start, event.end);
+
+    const label = document.createElement("span");
+    label.textContent = `${event.chord} → ${word}`;
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.textContent = "SİL";
+    removeButton.className = "delete-button";
+
+    removeButton.addEventListener("click", () => {
+      chordEvents.splice(index, 1);
+      renderChordEvents();
+      renderLyricsPreview();
+    });
+
+    item.append(label, removeButton);
+    chordEventList.appendChild(item);
+  });
+}
+
+// AKORLARIN SÖZLER ÜZERİNDE ÖN İZLEMESİ
+
+function renderLyricsPreview() {
+  const lyrics = songLyrics.value;
+
+  if (!lyrics) {
+    lyricsPreview.textContent = "Şarkı sözleri burada görünecek.";
+    return;
+  }
+
+  const sortedEvents = [...chordEvents].sort(
+    (a, b) => a.start - b.start
+  );
+
+  const tokens = lyrics.match(/\s+|[^\s]+/g) || [];
+  let position = 0;
+  let html = "";
+
+  tokens.forEach(token => {
+    const start = position;
+    const end = position + token.length;
+    position = end;
+
+    if (/^\s+$/.test(token)) {
+      html += escapeHTML(token);
+      return;
+    }
+
+    const matchingEvents = sortedEvents.filter(event =>
+      event.start === start && event.end === end
+    );
+
+    if (matchingEvents.length) {
+      const labels = matchingEvents
+        .map(event => `<span class="preview-chord">${escapeHTML(event.chord)}</span>`)
+        .join("");
+
+      html += `
+        <span class="preview-word has-chord">
+          ${labels}
+          <span>${escapeHTML(token)}</span>
+        </span>
+      `;
+    } else {
+      html += `<span class="preview-word">${escapeHTML(token)}</span>`;
+    }
+  });
+
+  lyricsPreview.innerHTML = html;
+}
+
+songLyrics.addEventListener("input", () => {
+  chordEvents = chordEvents.filter(event => {
+    return event.end <= songLyrics.value.length &&
+      songLyrics.value.slice(event.start, event.end).trim().length > 0;
+  });
+
+  selectedRange = null;
+  selectionMessage.textContent = "Bir kelime seç.";
+  renderChordEvents();
+  renderLyricsPreview();
+});
+
+// ŞARKI KAYDETME
+
+songForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (!isAdmin) return;
+
+  const title = $("songTitle").value.trim();
+  const artistIdValue = songArtist.value;
+
+  if (!title || !artistIdValue) {
+    songMessage.textContent = "Şarkı adı ve sanatçı zorunludur.";
+    return;
+  }
+
+  const originalId = songOriginalId.value.trim();
+
+  const slug = createSlug(title) || "sarki";
+
+  const id = originalId ||
+    `${slug}-${createSlug(artists.find(a => a.id === artistIdValue)?.name || "sanatci")}-${Date.now()}`;
+
+  const chords = $("songChords").value
+    .split(",")
+    .map(chord => chord.trim())
+    .filter(Boolean);
+
+  const songData = {
+    id,
+    title,
+    artist_id: artistIdValue,
+    language: $("songLanguage").value,
+    genre: $("songGenre").value.trim(),
+    song_key: $("songKey").value || null,
+    chords,
+    lyrics: songLyrics.value,
+    chord_events: chordEvents,
+    published: $("songPublished").checked
+  };
+
+  const saveButton = $("songSaveButton");
+  saveButton.disabled = true;
+  saveButton.textContent = "KAYDEDİLİYOR...";
+  songMessage.textContent = "";
+
+  try {
+    let result;
+
+    if (originalId) {
+      result = await db
+        .from("songs")
+        .update(songData)
+        .eq("id", originalId);
+    } else {
+      result = await db
+        .from("songs")
+        .insert(songData);
+    }
+
+    if (result.error) throw result.error;
+
+    songMessage.textContent =
+      originalId ? "Şarkı güncellendi." : "Şarkı başarıyla eklendi.";
+
+    resetSongForm();
+    await loadSongs();
+
+  } catch (error) {
+    songMessage.textContent = "Kayıt hatası: " + error.message;
+  } finally {
+    saveButton.disabled = false;
+    saveButton.textContent = "ŞARKIYI KAYDET";
+  }
+});
+
+function resetSongForm() {
+  songForm.reset();
+  songOriginalId.value = "";
+  chordEvents = [];
+  selectedRange = null;
+
+  selectionMessage.textContent = "Henüz kelime seçilmedi.";
+  chordEventList.textContent = "Henüz akor eklenmedi.";
+  lyricsPreview.textContent = "Şarkı sözleri burada görünecek.";
+
+  $("songSaveButton").textContent = "ŞARKIYI KAYDET";
+}
+
+$("songCancelButton").addEventListener("click", () => {
+  resetSongForm();
+  songMessage.textContent = "";
+});
+
+async function deleteSong(song) {
+  const approved = confirm(
+    `"${song.title}" şarkısını silmek istediğine emin misin?`
+  );
+
+  if (!approved) return;
+
+  const { error } = await db
+    .from("songs")
+    .delete()
+    .eq("id", song.id);
+
+  if (error) {
+    songMessage.textContent = "Silme hatası: " + error.message;
+    return;
+  }
+
+  songMessage.textContent = "Şarkı silindi.";
+  await loadSongs();
+}
+
+// BAŞLAT
 
 checkAdmin();
