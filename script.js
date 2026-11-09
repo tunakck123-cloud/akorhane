@@ -19,7 +19,8 @@ const shapes = {
  F:[1,3,3,2,1,1],
  Bm:[null,2,4,4,3,2],
  Dm:[null,null,0,2,3,1]
-};
+B:[null,2,4,4,4,2],
+ };
 
 async function init() {
  try {
