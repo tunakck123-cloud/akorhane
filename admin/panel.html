@@ -68,14 +68,110 @@
         </form>
 
         <h3>Mevcut sanatçılar</h3>
-        <div id="artistList" class="admin-list">
-          Yükleniyor...
-        </div>
+        <div id="artistList" class="admin-list">Yükleniyor...</div>
       </section>
 
-      <section class="admin-section">
+      <section class="admin-section" id="songEditor">
         <h2>Şarkı yönetimi</h2>
-        <p class="muted">Şarkı ekleme, söz düzenleme ve akor yerleştirme alanı sıradaki aşamada hazırlanacak.</p>
+        <p class="muted">Şarkı ekle, sözleri düzenle ve akorları yerleştir.</p>
+
+        <form id="songForm" class="admin-form">
+          <input type="hidden" id="songOriginalId">
+
+          <label for="songTitle">Şarkı adı</label>
+          <input id="songTitle" type="text" placeholder="Şarkı adı" required>
+
+          <label for="songArtist">Sanatçı</label>
+          <select id="songArtist" required>
+            <option value="">Sanatçı seç</option>
+          </select>
+
+          <label for="songLanguage">Dil</label>
+          <select id="songLanguage">
+            <option value="Türkçe">Türkçe</option>
+            <option value="İngilizce">İngilizce</option>
+            <option value="Diğer">Diğer</option>
+          </select>
+
+          <label for="songGenre">Müzik türü</label>
+          <input id="songGenre" type="text" placeholder="Örn. Alternatif Rock">
+
+          <label for="songKey">Şarkının tonu</label>
+          <select id="songKey">
+            <option value="">Ton seçilmedi</option>
+            <option>C</option><option>C#</option>
+            <option>D</option><option>D#</option>
+            <option>E</option><option>F</option>
+            <option>F#</option><option>G</option>
+            <option>G#</option><option>A</option>
+            <option>A#</option><option>B</option>
+            <option>Am</option><option>Bm</option>
+            <option>Cm</option><option>Dm</option>
+            <option>Em</option><option>Fm</option>
+            <option>Gm</option>
+          </select>
+
+          <label for="songChords">Şarkıda kullanılan akorlar</label>
+          <input id="songChords" type="text" placeholder="Örn. Am, C, G, D">
+
+          <label for="songLyrics">Şarkı sözleri</label>
+          <textarea id="songLyrics" rows="12" placeholder="Şarkı sözlerini buraya yaz..." spellcheck="false"></textarea>
+
+          <div class="chord-editor">
+            <h3>Akor yerleştirme</h3>
+            <p class="muted">Önce sözlerden bir kelime seç, sonra akoru belirleyip yerleştir.</p>
+
+            <label for="chordChoice">Yerleştirilecek akor</label>
+            <select id="chordChoice">
+              <option>Am</option><option>A</option>
+              <option>A7</option><option>Bm</option>
+              <option>B</option><option>C</option>
+              <option>C#m</option><option>D</option>
+              <option>Dm</option><option>D7</option>
+              <option>E</option><option>Em</option>
+              <option>E7</option><option>F</option>
+              <option>F#m</option><option>G</option>
+              <option>G7</option>
+            </select>
+
+            <button type="button" id="placeChordButton" class="gold-button">
+              SEÇİLİ KELİMEYE AKOR EKLE
+            </button>
+
+            <p id="selectionMessage" role="status" class="muted">
+              Henüz kelime seçilmedi.
+            </p>
+
+            <h3>Yerleştirilen akorlar</h3>
+            <div id="chordEventList" class="chord-event-list">
+              Henüz akor eklenmedi.
+            </div>
+
+            <h3>Ön izleme</h3>
+            <div id="lyricsPreview" class="lyrics-preview">
+              Şarkı sözleri burada görünecek.
+            </div>
+          </div>
+
+          <label class="publish-option">
+            <input id="songPublished" type="checkbox" checked>
+            Sitede yayınla
+          </label>
+
+          <div class="admin-actions">
+            <button class="gold-button" type="submit" id="songSaveButton">
+              ŞARKIYI KAYDET
+            </button>
+            <button type="button" id="songCancelButton" class="secondary-button">
+              TEMİZLE
+            </button>
+          </div>
+
+          <p id="songMessage" role="status"></p>
+        </form>
+
+        <h3>Mevcut şarkılar</h3>
+        <div id="songList" class="admin-list">Yükleniyor...</div>
       </section>
     </section>
   </main>
