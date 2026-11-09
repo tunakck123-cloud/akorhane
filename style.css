@@ -1,120 +1,96 @@
+:root {
+  --bg: #101010;
+  --panel: #1b1b1b;
+  --panel2: #252525;
+  --text: #f5f2ed;
+  --muted: #999;
+  --gold: #f0a43a;
+  --line: #333;
 }
 
-.diagram {
-  background: #252525;
-  border-radius: 9px;
-  padding: 12px;
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  background: #101010ee;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  z-index: 5;
+}
+
+.nav {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  color: var(--text);
+  font-size: 25px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-decoration: none;
+}
+
+.logo span { color: var(--gold); }
+
+nav {
+  display: flex;
+  gap: 20px;
+}
+
+nav a {
+  color: #bbb;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+nav a:hover { color: var(--gold); }
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 45px 24px;
+}
+
+.hero {
   text-align: center;
-  min-width: 0;
+  padding: 35px 0 55px;
 }
 
-.diagram strong {
+.eyebrow {
   color: var(--gold);
-}
-
-.diagram svg {
-  width: 100%;
-  max-width: 105px;
-  height: 125px;
-  display: block;
-  margin: 8px auto;
-}
-
-/* ŞARKI SÖZLERİ VE AKORLAR */
-
-.lyrics-section {
-  margin-top: 28px;
-  padding-top: 22px;
-  border-top: 1px solid var(--line);
-}
-
-.lyrics-section h3 {
-  margin-bottom: 12px;
-}
-
-.song-lyrics-display {
-  padding: 20px 18px;
-  margin-top: 12px;
-  background: #181818;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  color: #eee;
-  font-size: 16px;
-  line-height: 2.2;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.lyric-word {
-  display: inline-block;
-  position: relative;
-  vertical-align: baseline;
-}
-
-.lyric-word.has-song-chord {
-  position: relative;
-}
-
-.song-chord {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  color: var(--gold);
-  font-size: 12px;
+  font-size: 11px;
+  letter-spacing: 3px;
   font-weight: bold;
-  line-height: 1.5;
-  white-space: nowrap;
-  pointer-events: none;
 }
 
-/* AKOR ŞEMALARI */
-
-.diagram .muted {
-  display: block;
-  line-height: 1.4;
+h1 {
+  font-size: clamp(40px, 7vw, 65px);
+  margin: 18px 0 12px;
+  letter-spacing: -2px;
 }
 
-@media (max-width: 700px) {
-  .artist-grid,
-  .song-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+h1 span { color: var(--gold); }
 
-  nav {
-    gap: 12px;
-  }
-}
+.hero p { color: var(--muted); }
 
-@media (max-width: 480px) {
-  .artist-grid,
-  .song-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .nav {
-    padding: 17px;
-  }
-
-  nav a:last-child {
-    display: none;
-  }
-
-  main {
-    padding: 30px 17px;
-  }
-
-  .song-lyrics-display {
-    padding: 16px 12px;
-    font-size: 14px;
-    line-height: 2.2;
-  }
-
-  .modal-box {
-    padding: 20px 16px;
-  }
-
-  .diagrams {
-    grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
-  }
-}
+.search {
+  max-width: 600px;
+  margin: 28px auto;
+  display: flex;
+  background: var(--panel);
+  border: 1px solid var(--line);
