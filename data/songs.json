@@ -1,0 +1,33 @@
+
+[
+  {
+    "id": "demo-001",
+    "title": "Geceye Kalan",
+    "artistId": "duman",
+    "language": "Türkçe",
+    "genre": "Rock",
+    "key": "Am",
+    "chords": ["Am", "F", "C", "G"],
+    "demo": true
+  },
+  {
+    "id": "demo-002",
+    "title": "Son Bir Şarkı",
+    "artistId": "yalin",
+    "language": "Türkçe",
+    "genre": "Indie",
+    "key": "Em",
+    "chords": ["Em", "C", "G", "D"],
+    "demo": true
+  },
+  {
+    "id": "demo-003",
+    "title": "Midnight Road",
+    "artistId": "nirvana",
+    "language": "Yabancı",
+    "genre": "Rock",
+    "key": "E",
+    "chords": ["E", "A", "D", "E"],
+    "demo": true
+  }
+]
