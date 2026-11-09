@@ -1,1 +1,45 @@
 
+[
+  {
+    "id": "duman",
+    "name": "Duman",
+    "language": "Türkçe",
+    "genre": "Rock",
+    "initial": "D"
+  },
+  {
+    "id": "yalin",
+    "name": "Yalın",
+    "language": "Türkçe",
+    "genre": "Pop",
+    "initial": "Y"
+  },
+  {
+    "id": "pilli-bebek",
+    "name": "Pilli Bebek",
+    "language": "Türkçe",
+    "genre": "Alternatif Rock",
+    "initial": "P"
+  },
+  {
+    "id": "nirvana",
+    "name": "Nirvana",
+    "language": "Yabancı",
+    "genre": "Grunge",
+    "initial": "N"
+  },
+  {
+    "id": "oasis",
+    "name": "Oasis",
+    "language": "Yabancı",
+    "genre": "Britpop",
+    "initial": "O"
+  },
+  {
+    "id": "radiohead",
+    "name": "Radiohead",
+    "language": "Yabancı",
+    "genre": "Alternative Rock",
+    "initial": "R"
+  }
+]
