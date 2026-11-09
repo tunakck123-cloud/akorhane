@@ -6,35 +6,35 @@ let selectedSong = null;
 let currentArtist = null;
 let shift = 0;
 
-const notes = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
-// Akor şekilleri: teller kalından inceye (E-A-D-G-B-e).
 const shapes = {
-  C:[null,3,2,0,1,0],
-  D:[null,null,0,2,3,2],
-  E:[0,2,2,1,0,0],
-  Em:[0,2,2,0,0,0],
-  A:[null,0,2,2,2,0],
-  Am:[null,0,2,2,1,0],
-  G:[3,2,0,0,0,3],
-  F:[1,3,3,2,1,1],
-  Bm:[null,2,4,4,3,2],
-  Dm:[null,null,0,2,3,1],
-  B:[null,2,4,4,4,2],
-  D7:[null,null,0,2,1,2],
-  A7:[null,0,2,0,2,0],
-  E7:[0,2,0,1,0,0],
-  Am7:[null,0,2,0,1,0],
-  Cadd9:[null,3,2,0,3,0],
-  Asus2:[null,0,2,2,0,0],
-  G7:[3,2,0,0,0,1],
-  Fmaj7:[null,null,3,2,1,0],
-  Amaj7:[null,0,2,1,2,0]
+  C: [null, 3, 2, 0, 1, 0],
+  D: [null, null, 0, 2, 3, 2],
+  E: [0, 2, 2, 1, 0, 0],
+  Em: [0, 2, 2, 0, 0, 0],
+  A: [null, 0, 2, 2, 2, 0],
+  Am: [null, 0, 2, 2, 1, 0],
+  G: [3, 2, 0, 0, 0, 3],
+  F: [1, 3, 3, 2, 1, 1],
+  Bm: [null, 2, 4, 4, 3, 2],
+  Dm: [null, null, 0, 2, 3, 1],
+  B: [null, 2, 4, 4, 4, 2],
+  D7: [null, null, 0, 2, 1, 2],
+  A7: [null, 0, 2, 0, 2, 0],
+  E7: [0, 2, 0, 1, 0, 0],
+  Am7: [null, 0, 2, 0, 1, 0],
+  Cadd9: [null, 3, 2, 0, 3, 0],
+  Asus2: [null, 0, 2, 2, 0, 0],
+  G7: [3, 2, 0, 0, 0, 1],
+  Fmaj7: [null, null, 3, 2, 1, 0],
+  Amaj7: [null, 0, 2, 1, 2, 0]
 };
 
 function normalizeChord(chord) {
   const value = String(chord || "").trim();
   const match = value.match(/^([a-g])([#b]?)(.*)$/i);
+
   if (!match) return value;
 
   return match[1].toUpperCase() + match[2] + match[3];
@@ -42,15 +42,17 @@ function normalizeChord(chord) {
 
 function chordRootToSharp(root) {
   return ({
-    "Db":"C#",
-    "Eb":"D#",
-    "Gb":"F#",
-    "Ab":"G#",
-    "Bb":"A#"
+    "Db": "C#",
+    "Eb": "D#",
+    "Gb": "F#",
+    "Ab": "G#",
+    "Bb": "A#"
   })[root] || root;
 }
 
 let db = null;
+
+/* SUPABASE BAĞLANTISI */
 
 async function init() {
   try {
@@ -102,6 +104,8 @@ async function init() {
   }
 }
 
+/* HTML GÜVENLİĞİ */
+
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({
     "&": "&amp;",
@@ -111,6 +115,8 @@ function escapeHTML(value) {
     "'": "&#039;"
   })[char]);
 }
+
+/* SANATÇILARI GÖSTER */
 
 function renderArtists() {
   const grid = document.getElementById("artistGrid");
@@ -136,6 +142,8 @@ function renderArtists() {
     });
   });
 }
+
+/* ŞARKILARI GÖSTER */
 
 function renderSongs(list = songs) {
   const grid = document.getElementById("songGrid");
@@ -173,8 +181,11 @@ function renderSongs(list = songs) {
   });
 }
 
+/* SANATÇI SAYFASI */
+
 function openArtist(id) {
   currentArtist = id;
+
   const artist = artists.find(a => a.id === id);
   if (!artist) return;
 
@@ -199,6 +210,8 @@ function openArtist(id) {
   });
 }
 
+/* ANA SAYFA */
+
 function showHome() {
   currentArtist = null;
 
@@ -219,6 +232,8 @@ function showHome() {
   renderSongs();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
+/* ARAMA */
 
 function searchAll() {
   currentArtist = null;
@@ -246,6 +261,8 @@ function searchAll() {
   });
 }
 
+/* FİLTRELEME */
+
 function applyFilter(filter) {
   activeFilter = filter;
   currentArtist = null;
@@ -264,6 +281,8 @@ function applyFilter(filter) {
 
   renderSongs(results);
 }
+
+/* ŞARKI DETAYI */
 
 function openSong(index) {
   selectedSong = songs[index];
@@ -317,13 +336,17 @@ function outsideClose(event) {
   if (event.target.id === "modal") closeModal();
 }
 
+/* TON DEĞİŞTİRME */
+
 function transposeChord(chord, amount) {
   const normalized = normalizeChord(chord);
   const match = normalized.match(/^([A-G])([#b]?)(.*)$/);
+
   if (!match) return normalized;
 
   const root = chordRootToSharp(match[1] + match[2]);
   const index = notes.indexOf(root);
+
   if (index < 0) return normalized;
 
   return notes[(index + amount + 120) % 12] + match[3];
@@ -339,7 +362,7 @@ function resetTranspose() {
   updateDetails();
 }
 
-/* AKORLARI AYIR VE ŞEMALARI ÇİZ */
+/* AKORLARI VE ŞEMALARI GÜNCELLE */
 
 function updateDetails() {
   const chords = (selectedSong.chords || []).flatMap(value =>
@@ -377,11 +400,14 @@ function updateDetails() {
   renderSongLyrics();
 }
 
-/* ŞARKI SÖZLERİNİ VE ÜZERİNDEKİ AKORLARI GÖSTER */
+/* ŞARKI SÖZLERİ VE ÜZERİNDEKİ AKORLAR */
 
 function renderSongLyrics() {
   const display = document.getElementById("songLyricsDisplay");
-  const lyrics = selectedSong.lyrics || "";
+
+  const lyrics = (selectedSong.lyrics || "")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n");
 
   if (!lyrics.trim()) {
     display.innerHTML = "";
@@ -399,6 +425,7 @@ function renderSongLyrics() {
     .sort((a, b) => a.start - b.start);
 
   const tokens = lyrics.match(/\s+|[^\s]+/g) || [];
+
   let position = 0;
   let html = "";
 
@@ -408,8 +435,14 @@ function renderSongLyrics() {
     position = end;
 
     if (/^\s+$/.test(token)) {
-      // Birden fazla boş satırı tek satıra indir.
-      html += token.includes("\n") ? "\n" : " ";
+      const newlines = (token.match(/\n/g) || []).length;
+
+      if (newlines > 0) {
+        html += newlines > 1 ? "\n\n" : "\n";
+      } else {
+        html += " ";
+      }
+
       return;
     }
 
@@ -417,20 +450,18 @@ function renderSongLyrics() {
       event.start === start && event.end === end
     );
 
+    const safeWord = escapeHTML(token);
+
     if (matchingEvents.length) {
-      const chordLabels = matchingEvents.map(event => {
+      const labels = matchingEvents.map(event => {
         const chord = transposeChord(event.chord, shift);
+
         return `<span class="song-chord">${escapeHTML(chord)}</span>`;
       }).join("");
 
-      html += `
-        <span class="lyric-word has-song-chord">
-          ${chordLabels}
-          <span>${escapeHTML(token)}</span>
-        </span>
-      `;
+      html += `<span class="lyric-word has-song-chord">${labels}${safeWord}</span>`;
     } else {
-      html += `<span class="lyric-word">${escapeHTML(token)}</span>`;
+      html += `<span class="lyric-word">${safeWord}</span>`;
     }
   });
 
@@ -441,6 +472,7 @@ function renderSongLyrics() {
 
 function makeDiagram(name, shape) {
   const left = 16, right = 90, top = 22, bottom = 112;
+
   const fretted = shape.filter(value =>
     Number.isInteger(value) && value > 0
   );
@@ -457,11 +489,13 @@ function makeDiagram(name, shape) {
 
   for (let i = 0; i < 6; i++) {
     const x = left + i * (right - left) / 5;
+
     svg += `<line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" stroke="#aaa" stroke-width="1"/>`;
   }
 
   for (let i = 0; i < 5; i++) {
     const y = top + i * (bottom - top) / 4;
+
     svg += `<line x1="${left}" y1="${y}" x2="${right}" y2="${y}" stroke="#aaa" stroke-width="${i === 0 && offset === 0 ? 3 : 1}"/>`;
   }
 
@@ -475,6 +509,7 @@ function makeDiagram(name, shape) {
     } else {
       const relativeFret = position - offset;
       const y = top + (relativeFret - 0.5) * (bottom - top) / 4;
+
       svg += `<circle cx="${x}" cy="${y}" r="5" fill="#f0a43a"/>`;
     }
   });
@@ -508,5 +543,7 @@ document.getElementById("search").addEventListener("input", searchAll);
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") closeModal();
 });
+
+/* UYGULAMAYI BAŞLAT */
 
 init();
