@@ -1,13 +1,16 @@
 
 [
-  {
-    "id": "duman-001",
-    "title": "Senden Daha Güzel",
-    "artistId": "duman",
-    "language": "Türkçe",
-    "genre": "Rock",
-    "demo": false
-  },
+
+{
+  "id": "duman-001",
+  "title": "Senden Daha Güzel",
+  "artistId": "duman",
+  "language": "Türkçe",
+  "genre": "Rock",
+  "key": "Am",
+  "chords": ["Am", "B"],
+  "demo": false
+},
   {
     "id": "duman-002",
     "title": "Her Şeyi Yak",
