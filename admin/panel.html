@@ -24,15 +24,59 @@
       <h1>İçeriği <span>yönet.</span></h1>
       <p class="muted" id="adminStatus">Yetki kontrol ediliyor...</p>
 
-      <div class="admin-section">
-        <h2>Sanatçılar</h2>
-        <p class="muted">Sanatçı yönetimi bir sonraki aşamada eklenecek.</p>
-      </div>
+      <section class="admin-section">
+        <h2>Sanatçı yönetimi</h2>
+        <p class="muted">Arşive sanatçı ekle veya mevcut sanatçıları düzenle.</p>
 
-      <div class="admin-section">
-        <h2>Şarkılar</h2>
-        <p class="muted">Şarkı ekleme ve akor düzenleme alanı hazırlanıyor.</p>
-      </div>
+        <form id="artistForm" class="admin-form">
+          <input type="hidden" id="artistOriginalId">
+
+          <label for="artistName">Sanatçı adı</label>
+          <input id="artistName" type="text" placeholder="Örn. Duman" required>
+
+          <label for="artistId">Sanatçı kimliği</label>
+          <input id="artistId" type="text" placeholder="Örn. duman" required>
+
+          <label for="artistLanguage">Dil</label>
+          <select id="artistLanguage">
+            <option value="Türkçe">Türkçe</option>
+            <option value="İngilizce">İngilizce</option>
+            <option value="Diğer">Diğer</option>
+          </select>
+
+          <label for="artistGenre">Müzik türü</label>
+          <input id="artistGenre" type="text" placeholder="Örn. Rock">
+
+          <label for="artistInitial">Kart harfi</label>
+          <input id="artistInitial" type="text" maxlength="2" placeholder="D">
+
+          <label class="publish-option">
+            <input id="artistPublished" type="checkbox" checked>
+            Sitede yayınla
+          </label>
+
+          <div class="admin-actions">
+            <button class="gold-button" type="submit" id="artistSaveButton">
+              SANATÇI EKLE
+            </button>
+            <button type="button" id="artistCancelButton" class="secondary-button">
+              TEMİZLE
+            </button>
+          </div>
+
+          <p id="artistMessage" role="status"></p>
+        </form>
+
+        <h3>Mevcut sanatçılar</h3>
+        <div id="artistList" class="admin-list">
+          Yükleniyor...
+        </div>
+      </section>
+
+      <section class="admin-section">
+        <h2>Şarkı yönetimi</h2>
+        <p class="muted">Şarkı ekleme, söz düzenleme ve akor yerleştirme alanı sıradaki aşamada hazırlanacak.</p>
+      </section>
     </section>
   </main>
 </body>
