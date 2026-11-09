@@ -93,3 +93,163 @@
     font-size: 32px;
   }
 }
+
+/* Yönetim paneli */
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-header .gold-button {
+  padding: 12px 20px;
+}
+
+.admin-dashboard {
+  margin-top: 55px;
+}
+
+.admin-section {
+  margin-top: 35px;
+  padding: 28px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.admin-section h2 {
+  margin-bottom: 8px;
+}
+
+.admin-section h3 {
+  margin: 28px 0 15px;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin-top: 25px;
+}
+
+.admin-form label {
+  font-size: 13px;
+  font-weight: bold;
+  color: #ddd;
+  margin-top: 8px;
+}
+
+.admin-form input,
+.admin-form select {
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 13px;
+  color: white;
+  background: #252525;
+  border: 1px solid #444;
+  border-radius: 7px;
+  outline: none;
+}
+
+.admin-form input:focus,
+.admin-form select:focus {
+  border-color: var(--gold);
+}
+
+.admin-form input:disabled {
+  opacity: .5;
+}
+
+.publish-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.publish-option input {
+  width: 17px;
+  min-height: 17px;
+  accent-color: var(--gold);
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.admin-actions button {
+  padding: 11px 16px;
+  border: 1px solid #555;
+  border-radius: 7px;
+  background: #292929;
+  color: white;
+  cursor: pointer;
+}
+
+.admin-actions button:hover {
+  border-color: var(--gold);
+}
+
+.admin-actions .gold-button {
+  background: var(--gold);
+  color: #111;
+  border-color: var(--gold);
+}
+
+.secondary-button {
+  background: transparent !important;
+}
+
+.delete-button {
+  color: #ff8585 !important;
+}
+
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 15px;
+  background: #202020;
+  border: 1px solid #393939;
+  border-radius: 9px;
+}
+
+.admin-list-item p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+#artistMessage {
+  color: var(--gold);
+  font-size: 13px;
+  min-height: 18px;
+}
+
+button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .admin-list-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-section {
+    padding: 20px 15px;
+  }
+}
