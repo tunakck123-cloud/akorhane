@@ -1,4 +1,3 @@
-
 let artists = [];
 let songs = [];
 let activeFilter = "Tümü";
@@ -434,15 +433,9 @@ function renderSongLyrics() {
     const end = start + token.length;
     position = end;
 
+    // Boşlukları ve satır sonlarını olduğu gibi koru.
     if (/^\s+$/.test(token)) {
-      const newlines = (token.match(/\n/g) || []).length;
-
-      if (newlines > 0) {
-        html += newlines > 1 ? "\n\n" : "\n";
-      } else {
-        html += " ";
-      }
-
+      html += escapeHTML(token);
       return;
     }
 
@@ -455,11 +448,11 @@ function renderSongLyrics() {
     if (matchingEvents.length) {
       const labels = matchingEvents.map(event => {
         const chord = transposeChord(event.chord, shift);
-
         return `<span class="song-chord">${escapeHTML(chord)}</span>`;
       }).join("");
 
-      html += `<span class="lyric-word has-song-chord">${labels}${safeWord}</span>`;
+      // Akor ve kelime aynı dikey blokta tutulur.
+      html += `<span class="lyric-word has-song-chord">${labels}<span class="lyric-text">${safeWord}</span></span>`;
     } else {
       html += `<span class="lyric-word">${safeWord}</span>`;
     }
