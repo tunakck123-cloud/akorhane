@@ -1,4 +1,3 @@
-
 const db = window.supabase.createClient(
   window.AKORHANE_CONFIG.url,
   window.AKORHANE_CONFIG.key
@@ -133,7 +132,6 @@ async function loadArtists() {
   }
 
   artists = data || [];
-
   artistList.innerHTML = "";
 
   if (!artists.length) {
@@ -367,7 +365,6 @@ async function loadSongs() {
     songList.appendChild(item);
   });
 }
-
 function editSong(song) {
   songOriginalId.value = song.id;
   $("songTitle").value = song.title || "";
@@ -380,7 +377,19 @@ function editSong(song) {
   $("songPublished").checked = !!song.published;
 
   chordEvents = Array.isArray(song.chord_events)
-    ? [...song.chord_events]
+    ? song.chord_events.map(event => ({
+        start: Number(event.start),
+        end: Number(event.end),
+        chord: String(event.chord || ""),
+        word: String(event.word ?? songLyrics.value.slice(event.start, event.end))
+      })).filter(event =>
+        Number.isInteger(event.start) &&
+        Number.isInteger(event.end) &&
+        event.start >= 0 &&
+        event.end > event.start &&
+        event.end <= songLyrics.value.length &&
+        event.word === songLyrics.value.slice(event.start, event.end)
+      )
     : [];
 
   selectedRange = null;
@@ -389,7 +398,6 @@ function editSong(song) {
   renderLyricsPreview();
 
   $("songSaveButton").textContent = "DEĞİŞİKLİKLERİ KAYDET";
-
   songForm.scrollIntoView({ behavior: "smooth" });
 }
 
@@ -414,10 +422,17 @@ function updateSelectedRange() {
     return;
   }
 
-  selectedRange = { start, end };
+  const before = songLyrics.value[start - 1] || "";
+  const after = songLyrics.value[end] || "";
 
-  selectionMessage.textContent =
-    `Seçilen kelime: "${selectedText}"`;
+  if ((before && !/\s/.test(before)) || (after && !/\s/.test(after))) {
+    selectedRange = null;
+    selectionMessage.textContent = "Kelimenin tamamını seçmelisin.";
+    return;
+  }
+
+  selectedRange = { start, end, word: selectedText };
+  selectionMessage.textContent = `Seçilen kelime: "${selectedText}"`;
 }
 
 songLyrics.addEventListener("mouseup", updateSelectedRange);
@@ -430,7 +445,13 @@ $("placeChordButton").addEventListener("click", () => {
     return;
   }
 
-  const { start, end } = selectedRange;
+  const { start, end, word } = selectedRange;
+
+  if (songLyrics.value.slice(start, end) !== word) {
+    selectedRange = null;
+    selectionMessage.textContent = "Metin değişti. Kelimeyi yeniden seç.";
+    return;
+  }
 
   const overlaps = chordEvents.some(event =>
     start < event.end && end > event.start
@@ -442,18 +463,17 @@ $("placeChordButton").addEventListener("click", () => {
     return;
   }
 
-  const chord = chordChoice.value;
-
   chordEvents.push({
     start,
     end,
-    chord
+    chord: chordChoice.value,
+    word
   });
 
   chordEvents.sort((a, b) => a.start - b.start);
 
   selectionMessage.textContent =
-    `${chord} akoru yerleştirildi.`;
+    `${chordChoice.value} akoru yerleştirildi.`;
 
   renderChordEvents();
   renderLyricsPreview();
@@ -471,10 +491,10 @@ function renderChordEvents() {
     const item = document.createElement("div");
     item.className = "chord-event-item";
 
-    const word = songLyrics.value.slice(event.start, event.end);
+    const currentWord = songLyrics.value.slice(event.start, event.end);
 
     const label = document.createElement("span");
-    label.textContent = `${event.chord} → ${word}`;
+    label.textContent = `${event.chord} → ${currentWord}`;
 
     const removeButton = document.createElement("button");
     removeButton.type = "button";
@@ -502,17 +522,15 @@ function renderLyricsPreview() {
     return;
   }
 
-  const sortedEvents = [...chordEvents].sort(
-    (a, b) => a.start - b.start
-  );
-
+  const sortedEvents = [...chordEvents].sort((a, b) => a.start - b.start);
   const tokens = lyrics.match(/\s+|[^\s]+/g) || [];
+
   let position = 0;
   let html = "";
 
   tokens.forEach(token => {
     const start = position;
-    const end = position + token.length;
+    const end = start + token.length;
     position = end;
 
     if (/^\s+$/.test(token)) {
@@ -520,21 +538,14 @@ function renderLyricsPreview() {
       return;
     }
 
-    const matchingEvents = sortedEvents.filter(event =>
-      event.start === start && event.end === end
+    const matchingEvent = sortedEvents.find(event =>
+      event.start === start &&
+      event.end === end &&
+      event.word === token
     );
 
-    if (matchingEvents.length) {
-      const labels = matchingEvents
-        .map(event => `<span class="preview-chord">${escapeHTML(event.chord)}</span>`)
-        .join("");
-
-      html += `
-        <span class="preview-word has-chord">
-          ${labels}
-          <span>${escapeHTML(token)}</span>
-        </span>
-      `;
+    if (matchingEvent) {
+      html += `<span class="preview-word has-chord"><span class="preview-chord">${escapeHTML(matchingEvent.chord)}</span>${escapeHTML(token)}</span>`;
     } else {
       html += `<span class="preview-word">${escapeHTML(token)}</span>`;
     }
@@ -543,14 +554,68 @@ function renderLyricsPreview() {
   lyricsPreview.innerHTML = html;
 }
 
-songLyrics.addEventListener("input", () => {
-  chordEvents = chordEvents.filter(event => {
-    return event.end <= songLyrics.value.length &&
-      songLyrics.value.slice(event.start, event.end).trim().length > 0;
-  });
+// SÖZLER DEĞİŞTİĞİNDE AKOR KONUMUNU KORUMA
 
+let previousLyricsValue = songLyrics.value;
+
+songLyrics.addEventListener("input", () => {
+  const oldValue = previousLyricsValue;
+  const newValue = songLyrics.value;
+
+  let prefix = 0;
+
+  while (
+    prefix < oldValue.length &&
+    prefix < newValue.length &&
+    oldValue[prefix] === newValue[prefix]
+  ) {
+    prefix++;
+  }
+
+  let suffix = 0;
+
+  while (
+    suffix < oldValue.length - prefix &&
+    suffix < newValue.length - prefix &&
+    oldValue[oldValue.length - 1 - suffix] ===
+      newValue[newValue.length - 1 - suffix]
+  ) {
+    suffix++;
+  }
+
+  const oldChangedEnd = oldValue.length - suffix;
+  const newChangedEnd = newValue.length - suffix;
+  const difference = newChangedEnd - oldChangedEnd;
+
+  chordEvents = chordEvents
+    .filter(event => {
+      if (event.end <= prefix) return true;
+      if (event.start >= oldChangedEnd) return true;
+      return false;
+    })
+    .map(event => {
+      if (event.start >= oldChangedEnd) {
+        return {
+          ...event,
+          start: event.start + difference,
+          end: event.end + difference
+        };
+      }
+
+      return event;
+    })
+    .filter(event =>
+      event.start >= 0 &&
+      event.end <= newValue.length &&
+      newValue.slice(event.start, event.end) === event.word
+    );
+
+  previousLyricsValue = newValue;
   selectedRange = null;
-  selectionMessage.textContent = "Bir kelime seç.";
+
+  selectionMessage.textContent =
+    "Sözler güncellendi. Geçerli akor konumları korundu.";
+
   renderChordEvents();
   renderLyricsPreview();
 });
@@ -571,7 +636,6 @@ songForm.addEventListener("submit", async event => {
   }
 
   const originalId = songOriginalId.value.trim();
-
   const slug = createSlug(title) || "sarki";
 
   const id = originalId ||
@@ -635,6 +699,7 @@ function resetSongForm() {
   songOriginalId.value = "";
   chordEvents = [];
   selectedRange = null;
+  previousLyricsValue = songLyrics.value;
 
   selectionMessage.textContent = "Henüz kelime seçilmedi.";
   chordEventList.textContent = "Henüz akor eklenmedi.";
