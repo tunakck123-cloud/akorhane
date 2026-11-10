@@ -1,9 +1,15 @@
+
 let artists = [];
 let songs = [];
 let activeFilter = "Tümü";
 let selectedSong = null;
 let currentArtist = null;
 let shift = 0;
+
+const notes = [
+  "C", "C#", "D", "D#", "E", "F",
+  "F#", "G", "G#", "A", "A#", "B"
+];
 
 const roots = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
@@ -25,33 +31,13 @@ roots.forEach(root => {
   const e = lowE[root];
   const a = aString[root];
 
-  // Majör
-  shapes[root] = [
-    e, e + 2, e + 2, e + 1, e, e
-  ];
-
-  // Minör
-  shapes[root + "m"] = [
-    e, e + 2, e + 2, e, e, e
-  ];
-
-  // Dominant 7
-  shapes[root + "7"] = [
-    e, e + 2, e, e + 1, e, e
-  ];
-
-  // Majör 7
-  shapes[root + "maj7"] = [
-    null, a, a + 2, a + 1, a + 2, a
-  ];
-
-  // Minör 7
-  shapes[root + "m7"] = [
-    null, a, a + 2, a, a + 1, a
-  ];
+  shapes[root] = [e, e + 2, e + 2, e + 1, e, e];
+  shapes[root + "m"] = [e, e + 2, e + 2, e, e, e];
+  shapes[root + "7"] = [e, e + 2, e, e + 1, e, e];
+  shapes[root + "maj7"] = [null, a, a + 2, a + 1, a + 2, a];
+  shapes[root + "m7"] = [null, a, a + 2, a, a + 1, a];
 });
 
-// Yaygın açık akorların daha rahat basılan versiyonları
 Object.assign(shapes, {
   "C":   [null, 3, 2, 0, 1, 0],
   "D":   [null, null, 0, 2, 3, 2],
@@ -475,7 +461,6 @@ function renderSongLyrics() {
     const end = start + token.length;
     position = end;
 
-    // Boşlukları ve satır sonlarını olduğu gibi koru.
     if (/^\s+$/.test(token)) {
       html += escapeHTML(token);
       return;
@@ -493,7 +478,6 @@ function renderSongLyrics() {
         return `<span class="song-chord">${escapeHTML(chord)}</span>`;
       }).join("");
 
-      // Akor ve kelime aynı dikey blokta tutulur.
       html += `<span class="lyric-word has-song-chord">${labels}<span class="lyric-text">${safeWord}</span></span>`;
     } else {
       html += `<span class="lyric-word">${safeWord}</span>`;
