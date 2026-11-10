@@ -1,3 +1,4 @@
+
 let artists = [];
 let songs = [];
 let activeFilter = "Tümü";
@@ -26,15 +27,36 @@ const aString = {
 
 const shapes = {};
 
+// E telini kök alan taşınabilir bare akor kalıpları.
+// Dizi sırası: kalın E, A, D, G, B, ince e.
+const eFormTemplates = {
+  "":       [0, 2, 2, 1, 0, 0],
+  "m":      [0, 2, 2, 0, 0, 0],
+  "5":      [0, 2, 2, null, null, null],
+  "6":      [0, 2, 2, 1, 2, 0],
+  "m6":     [0, 2, 2, 0, 2, 0],
+  "7":      [0, 2, 0, 1, 0, 0],
+  "maj7":   [0, 2, 1, 1, 0, 0],
+  "m7":     [0, 2, 0, 0, 0, 0],
+  "mMaj7":  [0, 2, 1, 0, 0, 0],
+  "aug":    [0, 3, 2, 1, null, null],
+  "sus2":   [0, 2, 4, 4, 0, 0],
+  "sus4":   [0, 2, 2, 2, 0, 0],
+  "7sus4":  [0, 2, 0, 2, 0, 0],
+  "add9":   [0, 2, 4, 1, 0, 0],
+  "9":      [0, 2, 0, 1, 0, 2],
+  "maj9":   [0, 2, 1, 1, 0, 2],
+  "m9":     [0, 2, 0, 0, 0, 2]
+};
+
 roots.forEach(root => {
   const e = lowE[root];
-  const a = aString[root];
 
-  shapes[root] = [e, e + 2, e + 2, e + 1, e, e];
-  shapes[root + "m"] = [e, e + 2, e + 2, e, e, e];
-  shapes[root + "7"] = [e, e + 2, e, e + 1, e, e];
-  shapes[root + "maj7"] = [null, a, a + 2, a + 1, a + 2, a];
-  shapes[root + "m7"] = [null, a, a + 2, a, a + 1, a];
+  Object.entries(eFormTemplates).forEach(([suffix, template]) => {
+    shapes[root + suffix] = template.map(fret =>
+      fret === null ? null : e + fret
+    );
+  });
 });
 
 Object.assign(shapes, {
@@ -442,9 +464,13 @@ function updateDetails() {
   document.getElementById("diagrams").innerHTML =
     [...new Set(chords)].map(chord => {
       const shapeKey = normalizeChord(chord);
+      const shapeMatch = shapeKey.match(/^([A-G][#b]?)(.*)$/);
+      const canonicalShapeKey = shapeMatch
+        ? chordRootToSharp(shapeMatch[1]) + shapeMatch[2]
+        : shapeKey;
 
-      return shapes[shapeKey]
-        ? makeDiagram(chord, shapes[shapeKey])
+      return shapes[canonicalShapeKey]
+        ? makeDiagram(chord, shapes[canonicalShapeKey])
         : `<div class="diagram">
              <strong>${escapeHTML(chord)}</strong>
              <p class="muted">Bu akor için şema henüz eklenmedi.</p>
@@ -533,50 +559,55 @@ function renderSongLyrics() {
 /* GİTAR AKOR ŞEMASI */
 
 function makeDiagram(name, shape) {
-  const left = 16, right = 90, top = 22, bottom = 112;
+  const left = 16;
+  const right = 90;
+  const top = 24;
+  const bottom = 112;
+  const stringGap = (right - left) / 5;
+  const fretGap = (bottom - top) / 4;
 
   const fretted = shape.filter(value =>
     Number.isInteger(value) && value > 0
   );
-
   const minFret = fretted.length ? Math.min(...fretted) : 1;
   const offset = minFret > 1 ? minFret - 1 : 0;
 
-  let svg = '<svg viewBox="0 0 106 140" role="img" aria-label="' +
-    escapeHTML(name) + ' akor şeması">';
+  let svg = `<svg viewBox="0 0 106 142" role="img" aria-label="${escapeHTML(name)} gitar akor şeması">`;
 
   if (offset > 0) {
-    svg += `<text x="4" y="${top + 12}" fill="#aaa" font-size="9">${offset + 1}. perde</text>`;
+    svg += `<text x="4" y="18" fill="#aaa" font-size="9">${offset + 1}. perde</text>`;
   }
 
+  // Altı tel
   for (let i = 0; i < 6; i++) {
-    const x = left + i * (right - left) / 5;
-
+    const x = left + i * stringGap;
     svg += `<line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" stroke="#aaa" stroke-width="1"/>`;
   }
 
-  for (let i = 0; i < 5; i++) {
-    const y = top + i * (bottom - top) / 4;
-
-    svg += `<line x1="${left}" y1="${y}" x2="${right}" y2="${y}" stroke="#aaa" stroke-width="${i === 0 && offset === 0 ? 3 : 1}"/>`;
+  // Beş perde aralığı
+  for (let i = 0; i <= 4; i++) {
+    const y = top + i * fretGap;
+    const isNut = i === 0 && offset === 0;
+    svg += `<line x1="${left}" y1="${y}" x2="${right}" y2="${y}" stroke="${isNut ? '#eee' : '#888'}" stroke-width="${isNut ? 3 : 1}"/>`;
   }
 
   shape.forEach((position, index) => {
-    const x = left + index * (right - left) / 5;
+    const x = left + index * stringGap;
 
     if (position === null) {
-      svg += `<text x="${x}" y="14" fill="#f88" font-size="12" text-anchor="middle">×</text>`;
+      svg += `<text x="${x}" y="15" fill="#f88" font-size="12" text-anchor="middle">×</text>`;
     } else if (position === 0) {
-      svg += `<circle cx="${x}" cy="10" r="3" fill="none" stroke="#f0a43a" stroke-width="1.5"/>`;
-    } else {
+      svg += `<circle cx="${x}" cy="12" r="3.2" fill="none" stroke="#f0a43a" stroke-width="1.5"/>`;
+    } else if (Number.isInteger(position) && position > 0) {
       const relativeFret = position - offset;
-      const y = top + (relativeFret - 0.5) * (bottom - top) / 4;
-
-      svg += `<circle cx="${x}" cy="${y}" r="5" fill="#f0a43a"/>`;
+      if (relativeFret >= 1 && relativeFret <= 5) {
+        const y = top + (relativeFret - 0.5) * fretGap;
+        svg += `<circle cx="${x}" cy="${y}" r="5" fill="#f0a43a"/>`;
+      }
     }
   });
 
-  svg += "</svg>";
+  svg += '</svg>';
 
   return `
     <div class="diagram">
