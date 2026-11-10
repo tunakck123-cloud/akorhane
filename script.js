@@ -8,7 +8,6 @@ let shift = 0;
 const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
 const shapes = {
-  const shapes = {
   // MAJÖR AKORLAR
   C: [null, 3, 2, 0, 1, 0],
   D: [null, null, 0, 2, 3, 2],
