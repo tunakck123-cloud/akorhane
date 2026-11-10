@@ -30,6 +30,69 @@ const songLyrics = $("songLyrics");
 const songArtist = $("songArtist");
 const songOriginalId = $("songOriginalId");
 const chordChoice = $("chordChoice");
+
+// TÜM TEMEL VE YAYGIN AKOR SEÇENEKLERİ
+
+function populateChordOptions() {
+  const roots = [
+    "C", "C#", "D", "D#", "E", "F",
+    "F#", "G", "G#", "A", "A#", "B"
+  ];
+
+  const chordTypes = [
+    { suffix: "", label: "Majör" },
+    { suffix: "m", label: "Minör" },
+    { suffix: "5", label: "Power chord" },
+    { suffix: "6", label: "Majör 6" },
+    { suffix: "m6", label: "Minör 6" },
+    { suffix: "7", label: "Dominant 7" },
+    { suffix: "maj7", label: "Majör 7" },
+    { suffix: "m7", label: "Minör 7" },
+    { suffix: "mMaj7", label: "Minör majör 7" },
+    { suffix: "dim", label: "Eksiltilmiş" },
+    { suffix: "dim7", label: "Eksiltilmiş 7" },
+    { suffix: "aug", label: "Artırılmış" },
+    { suffix: "sus2", label: "Sus 2" },
+    { suffix: "sus4", label: "Sus 4" },
+    { suffix: "7sus4", label: "7 Sus 4" },
+    { suffix: "add9", label: "Add 9" },
+    { suffix: "9", label: "Dominant 9" },
+    { suffix: "maj9", label: "Majör 9" },
+    { suffix: "m9", label: "Minör 9" },
+    { suffix: "11", label: "Dominant 11" },
+    { suffix: "13", label: "Dominant 13" }
+  ];
+
+  const previousValue = chordChoice.value;
+  chordChoice.innerHTML = "";
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "Akor seç";
+  chordChoice.appendChild(placeholder);
+
+  roots.forEach(root => {
+    const group = document.createElement("optgroup");
+    group.label = root;
+
+    chordTypes.forEach(type => {
+      const chord = root + type.suffix;
+      const option = document.createElement("option");
+      option.value = chord;
+      option.textContent = `${chord} · ${type.label}`;
+      group.appendChild(option);
+    });
+
+    chordChoice.appendChild(group);
+  });
+
+  if ([...chordChoice.options].some(option => option.value === previousValue)) {
+    chordChoice.value = previousValue;
+  }
+}
+
+populateChordOptions();
+
 const chordEventList = $("chordEventList");
 const lyricsPreview = $("lyricsPreview");
 const selectionMessage = $("selectionMessage");
