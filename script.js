@@ -309,6 +309,35 @@ function applyFilter(filter) {
   renderSongs(results);
 }
 
+/* AKOR VERİSİNİ NORMALLEŞTİR */
+
+function getChordItems(song) {
+  const raw = song?.chords;
+
+  if (Array.isArray(raw)) return raw;
+
+  if (typeof raw === "string") {
+    const value = raw.trim();
+    if (!value) return [];
+
+    try {
+      const parsed = JSON.parse(value);
+
+      if (Array.isArray(parsed)) return parsed;
+
+      if (typeof parsed === "string") {
+        return parsed.split(/[\s,;]+/).filter(Boolean);
+      }
+    } catch {
+      // JSON değilse normal akor metni olarak işle.
+    }
+
+    return value.split(/[\s,;]+/).filter(Boolean);
+  }
+
+  return [];
+}
+
 /* ŞARKI DETAYI */
 
 function openSong(index) {
@@ -328,8 +357,7 @@ function openSong(index) {
   document.getElementById("detailGenre").textContent =
     (selectedSong.language || "") + " · " + (selectedSong.genre || "");
 
-  const hasChords = Array.isArray(selectedSong.chords) &&
-    selectedSong.chords.length > 0;
+  const hasChords = getChordItems(selectedSong).length > 0;
 
   const hasLyrics = Boolean(selectedSong.lyrics?.trim());
 
@@ -392,7 +420,7 @@ function resetTranspose() {
 /* AKORLARI VE ŞEMALARI GÜNCELLE */
 
 function updateDetails() {
-  const chords = (selectedSong.chords || []).flatMap(value =>
+  const chords = getChordItems(selectedSong).flatMap(value =>
     String(value || "")
       .split(/[\s,;]+/)
       .filter(Boolean)
