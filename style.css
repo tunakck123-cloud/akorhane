@@ -542,3 +542,45 @@ footer strong {
     grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
   }
 }
+
+/* AKOR VE KELİME HİZALAMASI */
+
+.song-lyrics-display {
+  white-space: pre-wrap;
+  overflow-wrap: normal;
+  word-break: normal;
+  line-height: 2.8;
+}
+
+.lyric-word {
+  display: inline;
+  position: relative;
+}
+
+.lyric-word.has-song-chord {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  vertical-align: bottom;
+  line-height: 1.2;
+  margin: 0 1px;
+}
+
+.lyric-text {
+  display: block;
+  white-space: nowrap;
+}
+
+.song-chord {
+  position: static;
+  display: block;
+  transform: none;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1.2;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+}
