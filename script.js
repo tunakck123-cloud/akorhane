@@ -1,4 +1,3 @@
-
 let artists = [];
 let songs = [];
 let activeFilter = "Tümü";
@@ -469,6 +468,7 @@ function renderSongLyrics() {
     return;
   }
 
+  // Hem tam kelime akorları hem de hece/bölüm akorları desteklenir.
   const events = (selectedSong.chord_events || [])
     .filter(event =>
       Number.isInteger(event.start) &&
@@ -480,7 +480,6 @@ function renderSongLyrics() {
     .sort((a, b) => a.start - b.start);
 
   const tokens = lyrics.match(/\s+|[^\s]+/g) || [];
-
   let position = 0;
   let html = "";
 
@@ -494,21 +493,37 @@ function renderSongLyrics() {
       return;
     }
 
-    const matchingEvents = events.filter(event =>
-      event.start === start && event.end === end
+    const wordEvents = events.filter(event =>
+      event.start < end && event.end > start
     );
 
-    const safeWord = escapeHTML(token);
+    if (!wordEvents.length) {
+      html += `<span class="lyric-word">${escapeHTML(token)}</span>`;
+      return;
+    }
 
-    if (matchingEvents.length) {
-      const labels = matchingEvents.map(event => {
+    let cursor = start;
+
+    wordEvents.forEach(event => {
+      const eventStart = Math.max(event.start, start);
+      const eventEnd = Math.min(event.end, end);
+
+      if (eventStart > cursor) {
+        html += `<span class="lyric-word">${escapeHTML(lyrics.slice(cursor, eventStart))}</span>`;
+      }
+
+      if (eventEnd > eventStart && eventStart >= cursor) {
         const chord = transposeChord(event.chord, shift);
-        return `<span class="song-chord">${escapeHTML(chord)}</span>`;
-      }).join("");
+        const segment = lyrics.slice(eventStart, eventEnd);
 
-      html += `<span class="lyric-word has-song-chord">${labels}<span class="lyric-text">${safeWord}</span></span>`;
-    } else {
-      html += `<span class="lyric-word">${safeWord}</span>`;
+        html += `<span class="lyric-word has-song-chord"><span class="song-chord">${escapeHTML(chord)}</span><span class="lyric-text">${escapeHTML(segment)}</span></span>`;
+
+        cursor = eventEnd;
+      }
+    });
+
+    if (cursor < end) {
+      html += `<span class="lyric-word">${escapeHTML(lyrics.slice(cursor, end))}</span>`;
     }
   });
 
