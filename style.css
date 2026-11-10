@@ -584,3 +584,54 @@ footer strong {
   white-space: nowrap;
   pointer-events: none;
 }
+
+/* TÜM ŞARKI SÖZLERİNİ AYNI HİZADA TUT */
+
+.song-lyrics-display {
+  white-space: pre-wrap;
+  line-height: 1.2;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.lyric-word {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  vertical-align: bottom;
+  line-height: 1.2;
+  margin: 0 1px;
+}
+
+/* Akoru olmayan kelimeler için boş akor alanı */
+.lyric-word:not(.has-song-chord)::before {
+  content: "";
+  display: block;
+  height: 17px;
+  margin-bottom: 5px;
+}
+
+/* Akorlu kelimeler */
+.lyric-word.has-song-chord {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: bottom;
+  line-height: 1.2;
+}
+
+.song-chord {
+  position: static;
+  display: block;
+  transform: none;
+  height: 17px;
+  margin-bottom: 5px;
+  line-height: 17px;
+  white-space: nowrap;
+}
+
+.lyric-text {
+  display: block;
+  white-space: nowrap;
+}
