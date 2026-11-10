@@ -1,3 +1,4 @@
+
 const db = window.supabase.createClient(
   window.AKORHANE_CONFIG.url,
   window.AKORHANE_CONFIG.key
@@ -365,6 +366,7 @@ async function loadSongs() {
     songList.appendChild(item);
   });
 }
+
 function editSong(song) {
   songOriginalId.value = song.id;
   $("songTitle").value = song.title || "";
@@ -393,7 +395,10 @@ function editSong(song) {
     : [];
 
   selectedRange = null;
-  selectionMessage.textContent = "Sözlerden bir kelime seç.";
+  previousLyricsValue = songLyrics.value;
+  selectionMessage.textContent =
+    "Akor koymak istediğin heceyi veya kelime bölümünü seç.";
+
   renderChordEvents();
   renderLyricsPreview();
 
@@ -401,7 +406,7 @@ function editSong(song) {
   songForm.scrollIntoView({ behavior: "smooth" });
 }
 
-// KELİME SEÇİMİ VE AKOR YERLEŞTİRME
+// HECE / KELİME SEÇİMİ VE AKOR YERLEŞTİRME
 
 function updateSelectedRange() {
   const start = songLyrics.selectionStart;
@@ -409,7 +414,8 @@ function updateSelectedRange() {
 
   if (start === end) {
     selectedRange = null;
-    selectionMessage.textContent = "Bir kelimeyi seçmelisin.";
+    selectionMessage.textContent =
+      "Akor koymak istediğin heceyi veya kelime bölümünü seç.";
     return;
   }
 
@@ -418,30 +424,22 @@ function updateSelectedRange() {
   if (!selectedText.trim() || /\s/.test(selectedText)) {
     selectedRange = null;
     selectionMessage.textContent =
-      "Lütfen boşluk içermeyen tek bir kelime seç.";
-    return;
-  }
-
-  const before = songLyrics.value[start - 1] || "";
-  const after = songLyrics.value[end] || "";
-
-  if ((before && !/\s/.test(before)) || (after && !/\s/.test(after))) {
-    selectedRange = null;
-    selectionMessage.textContent = "Kelimenin tamamını seçmelisin.";
+      "Boşluk içermeyen bir hece veya kelime bölümü seçmelisin.";
     return;
   }
 
   selectedRange = { start, end, word: selectedText };
-  selectionMessage.textContent = `Seçilen kelime: "${selectedText}"`;
+  selectionMessage.textContent = `Seçilen bölüm: "${selectedText}"`;
 }
 
 songLyrics.addEventListener("mouseup", updateSelectedRange);
 songLyrics.addEventListener("keyup", updateSelectedRange);
+songLyrics.addEventListener("select", updateSelectedRange);
 
 $("placeChordButton").addEventListener("click", () => {
   if (!selectedRange) {
     selectionMessage.textContent =
-      "Önce şarkı sözlerinden bir kelime seç.";
+      "Önce şarkı sözlerinden bir hece veya kelime bölümü seç.";
     return;
   }
 
@@ -449,7 +447,7 @@ $("placeChordButton").addEventListener("click", () => {
 
   if (songLyrics.value.slice(start, end) !== word) {
     selectedRange = null;
-    selectionMessage.textContent = "Metin değişti. Kelimeyi yeniden seç.";
+    selectionMessage.textContent = "Metin değişti. Bölümü yeniden seç.";
     return;
   }
 
@@ -459,7 +457,7 @@ $("placeChordButton").addEventListener("click", () => {
 
   if (overlaps) {
     selectionMessage.textContent =
-      "Bu kelimenin üzerinde zaten bir akor var. Önce onu sil.";
+      "Seçtiğin bölümle çakışan bir akor var. Önce mevcut akoru sil.";
     return;
   }
 
@@ -473,8 +471,9 @@ $("placeChordButton").addEventListener("click", () => {
   chordEvents.sort((a, b) => a.start - b.start);
 
   selectionMessage.textContent =
-    `${chordChoice.value} akoru yerleştirildi.`;
+    `${chordChoice.value} akoru "${word}" bölümüne yerleştirildi.`;
 
+  selectedRange = null;
   renderChordEvents();
   renderLyricsPreview();
 });
@@ -538,16 +537,33 @@ function renderLyricsPreview() {
       return;
     }
 
-    const matchingEvent = sortedEvents.find(event =>
-      event.start === start &&
-      event.end === end &&
-      event.word === token
+    const wordEvents = sortedEvents.filter(event =>
+      event.start < end && event.end > start
     );
 
-    if (matchingEvent) {
-      html += `<span class="preview-word has-chord"><span class="preview-chord">${escapeHTML(matchingEvent.chord)}</span>${escapeHTML(token)}</span>`;
-    } else {
+    if (!wordEvents.length) {
       html += `<span class="preview-word">${escapeHTML(token)}</span>`;
+      return;
+    }
+
+    let cursor = start;
+
+    wordEvents.forEach(event => {
+      const eventStart = Math.max(event.start, start);
+      const eventEnd = Math.min(event.end, end);
+
+      if (eventStart > cursor) {
+        html += `<span class="preview-word">${escapeHTML(lyrics.slice(cursor, eventStart))}</span>`;
+      }
+
+      if (eventEnd > eventStart && eventStart >= cursor) {
+        html += `<span class="preview-word has-chord"><span class="preview-chord">${escapeHTML(event.chord)}</span><span class="preview-text">${escapeHTML(lyrics.slice(eventStart, eventEnd))}</span></span>`;
+        cursor = eventEnd;
+      }
+    });
+
+    if (cursor < end) {
+      html += `<span class="preview-word">${escapeHTML(lyrics.slice(cursor, end))}</span>`;
     }
   });
 
@@ -701,7 +717,9 @@ function resetSongForm() {
   selectedRange = null;
   previousLyricsValue = songLyrics.value;
 
-  selectionMessage.textContent = "Henüz kelime seçilmedi.";
+  selectionMessage.textContent =
+    "Henüz hece veya kelime bölümü seçilmedi.";
+
   chordEventList.textContent = "Henüz akor eklenmedi.";
   lyricsPreview.textContent = "Şarkı sözleri burada görünecek.";
 
