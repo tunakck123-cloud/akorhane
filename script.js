@@ -5,58 +5,72 @@ let selectedSong = null;
 let currentArtist = null;
 let shift = 0;
 
-const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const roots = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
-const shapes = {
-  // MAJÖR AKORLAR
-  C: [null, 3, 2, 0, 1, 0],
-  D: [null, null, 0, 2, 3, 2],
-  E: [0, 2, 2, 1, 0, 0],
-  A: [null, 0, 2, 2, 2, 0],
-  G: [3, 2, 0, 0, 0, 3],
-  F: [1, 3, 3, 2, 1, 1],
-  B: [null, 2, 4, 4, 4, 2],
-
-  // MİNÖR AKORLAR
-  Am: [null, 0, 2, 2, 1, 0],
-  Em: [0, 2, 2, 0, 0, 0],
-  Bm: [null, 2, 4, 4, 3, 2],
-  Dm: [null, null, 0, 2, 3, 1],
-
-  // DİYEZLİ MAJÖR AKORLAR
-  "C#": [null, 4, 6, 6, 6, 4],
-  "D#": [null, 6, 8, 8, 8, 6],
-  "F#": [2, 4, 4, 3, 2, 2],
-  "G#": [4, 6, 6, 5, 4, 4],
-  "A#": [null, 1, 3, 3, 3, 1],
-
-  // DİYEZLİ MİNÖR AKORLAR
-  "C#m": [null, 4, 6, 6, 5, 4],
-  "D#m": [null, 6, 8, 8, 7, 6],
-  "F#m": [2, 4, 4, 2, 2, 2],
-  "G#m": [4, 6, 6, 4, 4, 4],
-  "A#m": [null, 1, 3, 3, 2, 1],
-
-  // 7'Lİ AKORLAR
-  D7: [null, null, 0, 2, 1, 2],
-  A7: [null, 0, 2, 0, 2, 0],
-  E7: [0, 2, 0, 1, 0, 0],
-  G7: [3, 2, 0, 0, 0, 1],
-
-  // DİYEZLİ 7'Lİ AKORLAR
-  "C#7": [null, 4, 6, 4, 6, 4],
-  "D#7": [null, 6, 8, 6, 8, 6],
-  "F#7": [2, 4, 2, 3, 2, 2],
-  "G#7": [4, 6, 4, 5, 4, 4],
-  "A#7": [null, 1, 3, 1, 3, 1],
-
-  // DİĞER AKORLAR
-  Am7: [null, 0, 2, 0, 1, 0],
-  Cadd9: [null, 3, 2, 0, 3, 0],
-  Asus2: [null, 0, 2, 2, 0, 0],
-  Fmaj7: [null, null, 3, 2, 1, 0],
-  Amaj7: [null, 0, 2, 1, 2, 0]
+const lowE = {
+  "C": 8, "C#": 9, "D": 10, "D#": 11,
+  "E": 0, "F": 1, "F#": 2, "G": 3,
+  "G#": 4, "A": 5, "A#": 6, "B": 7
 };
+
+const aString = {
+  "C": 3, "C#": 4, "D": 5, "D#": 6,
+  "E": 7, "F": 8, "F#": 9, "G": 10,
+  "G#": 11, "A": 0, "A#": 1, "B": 2
+};
+
+const shapes = {};
+
+roots.forEach(root => {
+  const e = lowE[root];
+  const a = aString[root];
+
+  // Majör
+  shapes[root] = [
+    e, e + 2, e + 2, e + 1, e, e
+  ];
+
+  // Minör
+  shapes[root + "m"] = [
+    e, e + 2, e + 2, e, e, e
+  ];
+
+  // Dominant 7
+  shapes[root + "7"] = [
+    e, e + 2, e, e + 1, e, e
+  ];
+
+  // Majör 7
+  shapes[root + "maj7"] = [
+    null, a, a + 2, a + 1, a + 2, a
+  ];
+
+  // Minör 7
+  shapes[root + "m7"] = [
+    null, a, a + 2, a, a + 1, a
+  ];
+});
+
+// Yaygın açık akorların daha rahat basılan versiyonları
+Object.assign(shapes, {
+  "C":   [null, 3, 2, 0, 1, 0],
+  "D":   [null, null, 0, 2, 3, 2],
+  "E":   [0, 2, 2, 1, 0, 0],
+  "G":   [3, 2, 0, 0, 0, 3],
+  "A":   [null, 0, 2, 2, 2, 0],
+
+  "Am":  [null, 0, 2, 2, 1, 0],
+  "Dm":  [null, null, 0, 2, 3, 1],
+  "Em":  [0, 2, 2, 0, 0, 0],
+
+  "E7":  [0, 2, 0, 1, 0, 0],
+  "A7":  [null, 0, 2, 0, 2, 0],
+  "D7":  [null, null, 0, 2, 1, 2],
+
+  "Cmaj7": [null, 3, 2, 0, 0, 0],
+  "Am7":   [null, 0, 2, 0, 1, 0],
+  "Em7":   [0, 2, 2, 0, 3, 0]
+});
 
 function normalizeChord(chord) {
   const value = String(chord || "").trim();
